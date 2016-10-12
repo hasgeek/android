@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">HasGeek</string>
+    <string name="session_objective_ipsum">The MySQL ecosystem is 21 years old which means there are plenty of solutions for you to use, or stuff that you may have used. Learn from best practices over the years, and use tools that are current for your next deployment.</string>
+    <string name="session_description_ipsum">The MySQL world is full of tradeoffs and choosing a High Availability (HA) solution is no exception. This session aims to look at all of the alternatives in an unbiased nature. Preference is of course only given to opensource solutions.
+
+How do you choose between: MySQL replication, MHA, DRBD, Tungsten, Galera Cluster? Do you integrate Pacemaker and Heartbeat like Percona Replication Manager? Is NDB Cluster right for your workload? The cloud brings even more fun as geographical redundancy is rolled into this. There are now even “modern” tools to assist in automation like Orchestrator, Consul, MariaDB MaxScale and MySQL Router.
+
+This and more will be covered in a walkthrough of MySQL HA options and when you will apply them.</string>
+    <string-array name="spinner_item">
+        <item>Friday, 15 April</item>
+        <item>Saturday, 16 April</item>
+        <item>Sunday, 17 April</item>
+    </string-array>
+</resources>
