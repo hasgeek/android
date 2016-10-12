@@ -48,7 +48,7 @@ public class SingleTrackFragment extends BaseFragment {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
 
-            RealmResults<Proposal> proposals = DataManager.getProposals(Realm.getDefaultInstance(), "84");
+            RealmResults<Proposal> proposals = DataManager.getConfirmedProposals(Realm.getDefaultInstance(), "84");
             l("We have: "+proposals.size()+" items");
             recyclerView.setAdapter(new SingleTrackRecyclerViewAdapter((SpaceActivity)getActivity(), proposals, mListener));
 

@@ -33,14 +33,22 @@ public class DatabaseService {
         return realm.where(Space.class).findAll();
     }
 
+    public static Space getSpaceById(Realm realm, String id) {
+        return realm.copyFromRealm(realm.where(Space.class).equalTo("id", id).findFirst());
+    }
+
     public static void saveSpaces(Realm realm, final List<Space> spaces) {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(spaces);
         realm.commitTransaction();
     }
 
-    public static RealmResults<Proposal> getProposals(Realm realm, String spaceId) {
+    public static RealmResults<Proposal> getConfirmedProposals(Realm realm, String spaceId) {
         return realm.where(Proposal.class)
+                .equalTo("space.id", spaceId)
+                .findAll()
+                .where()
+                .equalTo("confirmed", true)
                 .findAll();
     }
 

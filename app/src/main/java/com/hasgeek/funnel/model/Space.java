@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.List;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -19,38 +20,38 @@ public class Space extends RealmObject {
         @PrimaryKey
         @SerializedName("id")
         @Expose
-        String id;
+        private String id;
 
         @SerializedName("bg_color")
         @Expose
-        public String bgColor;
+        private String bgColor;
         @SerializedName("bg_image")
         @Expose
-        public String bgImage;
+        private String bgImage;
         @Expose
-        public String datelocation;
+        private String datelocation;
         @Expose
-        public String end;
+        private String end;
         @SerializedName("explore_url")
         @Expose
-        public String exploreUrl;
+        private String exploreUrl;
         @SerializedName("json_url")
         @Expose
-        public String jsonUrl;
+        private String jsonUrl;
         @Expose
-        public String name;
+        private String name;
         @Expose
-        public String start;
+        private String start;
         @Expose
-        public Integer status;
+        private Integer status;
         @Expose
-        public String timezone;
+        private String timezone;
         @Expose
-        public String title;
+        private String title;
         @Expose
-        public String url;
+        private String url;
         @Expose
-        public String website;
+        private String website;
 
 
         public String getId() {
@@ -294,5 +295,4 @@ public class Space extends RealmObject {
         public void setWebsite(String website) {
             this.website = website;
         }
-
 }

@@ -28,8 +28,8 @@ public class DataManager {
         return DatabaseService.getSpaces(realm);
     }
 
-    public static RealmResults<Proposal> getProposals(Realm realm, String spaceId) {
-        return DatabaseService.getProposals(realm, spaceId);
+    public static RealmResults<Proposal> getConfirmedProposals(Realm realm, String spaceId) {
+        return DatabaseService.getConfirmedProposals(realm, spaceId);
     }
 
     public static Proposal getProposal(Realm realm, int proposalId) {

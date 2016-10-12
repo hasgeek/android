@@ -119,28 +119,35 @@ public class SpaceActivity extends BaseActivity {
                     @Override
                     public void call(List<Space> spaceList) {
                         Toast.makeText(getApplicationContext(), "Updated data: "+spaceList.size()+" spaces.", Toast.LENGTH_SHORT).show();
+
+                        Space s = DatabaseService.getSpaceById(getRealm(), "84");
+                        APIService.getService().getProposals(s.getUrl())
+                                .doOnNext(new Action1<List<Proposal>>() {
+                                    @Override
+                                    public void call(List<Proposal> proposals) {
+                                        Realm realm = Realm.getDefaultInstance();
+                                        Space space = DatabaseService.getSpaceById(realm, "84");
+                                        for (Proposal p: proposals) {
+                                            p.setSpace(space);
+                                        }
+                                        DatabaseService.saveProposals(realm, proposals);
+                                        realm.close();
+                                        l("Saved proposals for "+space.getTitle());
+                                    }
+                                })
+                                .subscribeOn(Schedulers.io())
+                                .unsubscribeOn(AndroidSchedulers.mainThread())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Action1<List<Proposal>>() {
+                                    @Override
+                                    public void call(List<Proposal> proposals) {
+                                        Toast.makeText(getApplicationContext(), "Updated data: " + proposals.size() + " proposals.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     }
                 });
 
-        APIService.getService().getProposals("https://droidconin.talkfunnel.com/2016/")
-                .doOnNext(new Action1<List<Proposal>>() {
-                    @Override
-                    public void call(List<Proposal> proposals) {
-                        Realm realm = Realm.getDefaultInstance();
-                        DatabaseService.saveProposals(realm, proposals);
-                        realm.close();
-                        l("Saved proposals for droidconin 2016");
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<Proposal>>() {
-                   @Override
-                   public void call(List<Proposal> proposals) {
-                       Toast.makeText(getApplicationContext(), "Updated data: " + proposals.size() + " proposals.", Toast.LENGTH_SHORT).show();
-                   }
-               });
+
 
 
     }

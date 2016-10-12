@@ -12,50 +12,52 @@ import io.realm.annotations.PrimaryKey;
 public class Proposal extends RealmObject{
 
     @Expose
-    public String bio;
+    private String bio;
     @Expose
-    public Integer comments;
+    private Integer comments;
     @Expose
-    public Boolean confirmed;
+    private Boolean confirmed;
     @Expose
-    public String description;
+    private String description;
     @Expose
-    public String fullname;
+    private String fullname;
     @PrimaryKey
     @SerializedName("id")
     @Expose
-    public Integer id;
+    private Integer id;
     @SerializedName("json_url")
     @Expose
-    public String jsonUrl;
+    private String jsonUrl;
     @Expose
-    public String level;
+    private String level;
     @Expose
-    public String links;
+    private String links;
     @Expose
-    public String name;
+    private String name;
     @Expose
-    public String objective;
+    private String objective;
     @Expose
-    public String proposer;
+    private String proposer;
     @Expose
-    public String requirements;
+    private String requirements;
     @Expose
-    public String section;
+    private String section;
     @Expose
-    public String slides;
+    private String slides;
     @Expose
-    public String speaker;
+    private String speaker;
     @Expose
-    public String submitted;
+    private String submitted;
     @Expose
-    public String title;
+    private String title;
     @Expose
-    public String type;
+    private String type;
     @Expose
-    public String url;
+    private String url;
     @Expose
-    public Integer votes;
+    private Integer votes;
+
+    private Space space;
 
     /**
      *
@@ -435,4 +437,11 @@ public class Proposal extends RealmObject{
         this.votes = votes;
     }
 
+    public Space getSpace() {
+        return space;
+    }
+
+    public void setSpace(Space space) {
+        this.space = space;
+    }
 }
