@@ -1,0 +1,13 @@
+.gradle
+/local.properties
+.idea
+.DS_Store
+/build
+/gradle
+gradlew
+gradlew.bat
+gradle.properties
+zalebi.iml
+local.properties
+gen
+out
