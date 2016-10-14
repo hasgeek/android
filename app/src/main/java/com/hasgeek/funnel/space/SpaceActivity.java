@@ -22,12 +22,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.hasgeek.funnel.data.ProposalService;
+import com.hasgeek.funnel.data.SessionService;
+import com.hasgeek.funnel.data.SpaceService;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIService;
 import com.hasgeek.funnel.data.DatabaseService;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Proposal;
+import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.session.SessionActivity;
 import com.hasgeek.funnel.space.fragments.ScannerFragment;
@@ -107,7 +111,7 @@ public class SpaceActivity extends BaseActivity {
                     @Override
                     public void call(List<Space> spaceList) {
                         Realm realm = Realm.getDefaultInstance();
-                        DatabaseService.saveSpaces(realm, spaceList);
+                        SpaceService.saveSpaces(realm, spaceList);
                         realm.close();
                         l("Saved spaces");
                     }
@@ -120,17 +124,17 @@ public class SpaceActivity extends BaseActivity {
                     public void call(List<Space> spaceList) {
                         Toast.makeText(getApplicationContext(), "Updated data: "+spaceList.size()+" spaces.", Toast.LENGTH_SHORT).show();
 
-                        Space s = DatabaseService.getSpaceById(getRealm(), "84");
-                        APIService.getService().getProposals(s.getUrl())
+                        Space s = SpaceService.getSpaceById_Cold(getRealm(), "84");
+                        APIService.getService().getProposals(s.getId())
                                 .doOnNext(new Action1<List<Proposal>>() {
                                     @Override
                                     public void call(List<Proposal> proposals) {
                                         Realm realm = Realm.getDefaultInstance();
-                                        Space space = DatabaseService.getSpaceById(realm, "84");
+                                        Space space = SpaceService.getSpaceById_Cold(realm, "84");
                                         for (Proposal p: proposals) {
                                             p.setSpace(space);
                                         }
-                                        DatabaseService.saveProposals(realm, proposals);
+                                        ProposalService.saveProposals(realm, proposals);
                                         realm.close();
                                         l("Saved proposals for "+space.getTitle());
                                     }
@@ -142,6 +146,25 @@ public class SpaceActivity extends BaseActivity {
                                     @Override
                                     public void call(List<Proposal> proposals) {
                                         Toast.makeText(getApplicationContext(), "Updated data: " + proposals.size() + " proposals.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                        APIService.getService().getSessions(s.getId())
+                                .doOnNext(new Action1<List<Session>>() {
+                                    @Override
+                                    public void call(List<Session> sessions) {
+                                        Realm realm = Realm.getDefaultInstance();
+                                        SessionService.saveSessions(realm, sessions);
+                                        realm.close();
+                                        l("Saved sessions for space");
+                                    }
+                                })
+                                .subscribeOn(Schedulers.io())
+                                .unsubscribeOn(AndroidSchedulers.mainThread())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Action1<List<Session>>() {
+                                    @Override
+                                    public void call(List<Session> sessions) {
+                                        Toast.makeText(getApplicationContext(), "Updated data: " + sessions.size() + " sessions.", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     }
@@ -222,20 +245,20 @@ public class SpaceActivity extends BaseActivity {
         }
     }
 
-    ItemInteractionListener itemInteractionListener = new ItemInteractionListener<Proposal>() {
+    ItemInteractionListener itemInteractionListener = new ItemInteractionListener<Session>() {
         @Override
-        public void onItemClick(View v, Proposal item) {
+        public void onItemClick(View v, Session session) {
 
             Context context = v.getContext();
             Intent intent = new Intent(context, SessionActivity.class);
-            intent.putExtra(SessionActivity.EXTRA_PROPOSAL_ID, item.getId());
+            intent.putExtra(SessionActivity.EXTRA_SESSION_ID, session.getId());
 
             context.startActivity(intent);
 
         }
 
         @Override
-        public void onItemLongClick(View v, Proposal item) {
+        public void onItemLongClick(View v, Session item) {
 
         }
     };

@@ -10,14 +10,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.hasgeek.funnel.data.SessionService;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.DataManager;
 import com.hasgeek.funnel.model.Proposal;
+import com.hasgeek.funnel.model.Session;
 
 public class SessionActivity extends BaseActivity {
 
-    public static final String EXTRA_PROPOSAL_ID = "proposal_id";
+    public static final String EXTRA_SESSION_ID = "session_id";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,13 +27,14 @@ public class SessionActivity extends BaseActivity {
         setContentView(R.layout.activity_session);
 
         Intent intent = getIntent();
-        final int proposalId = intent.getIntExtra(EXTRA_PROPOSAL_ID, -1);
+        final String sessionId = intent.getStringExtra(EXTRA_SESSION_ID);
 
-        Proposal proposal = DataManager.getProposal(getRealm(), proposalId);
 
-        if(proposal==null) {
+        Session session = SessionService.getSessionById_Hot(getRealm(), sessionId);
+
+        if(session==null) {
             finish();
-            toast("No proposal with that ID found");
+            toast("No session with that ID found");
         }
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -40,7 +43,7 @@ public class SessionActivity extends BaseActivity {
 
         CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle(proposal.getTitle());
+        collapsingToolbar.setTitle(session.getTitle());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.session_fab);
         fab.setOnClickListener(new View.OnClickListener() {

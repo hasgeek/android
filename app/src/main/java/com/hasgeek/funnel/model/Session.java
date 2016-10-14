@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by karthikbalakrishnan on 30/03/15.
@@ -20,8 +21,9 @@ public class Session extends RealmObject{
     @SerializedName("feedback_url")
     @Expose
     public String feedbackUrl;
+    @PrimaryKey
     @Expose
-    public Integer id;
+    public String id;
     @SerializedName("is_break")
     @Expose
     public Boolean isBreak;
@@ -56,14 +58,22 @@ public class Session extends RealmObject{
     @Expose
     public String url;
 
-    public String space_id;
+    public Space space;
 
-    public String getSpace_id() {
-        return space_id;
+    public Boolean getBreak() {
+        return isBreak;
     }
 
-    public void setSpace_id(String space_id) {
-        this.space_id = space_id;
+    public void setBreak(Boolean aBreak) {
+        isBreak = aBreak;
+    }
+
+    public Space getSpace() {
+        return space;
+    }
+
+    public void setSpace(Space space) {
+        this.space = space;
     }
 
     public String getDescription() {
@@ -98,11 +108,11 @@ public class Session extends RealmObject{
         this.feedbackUrl = feedbackUrl;
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

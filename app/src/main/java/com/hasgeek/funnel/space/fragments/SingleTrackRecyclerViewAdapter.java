@@ -9,18 +9,19 @@ import android.widget.TextView;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Proposal;
+import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.space.SpaceActivity;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Proposal, SingleTrackRecyclerViewAdapter.SpaceViewHolder> {
+public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Session, SingleTrackRecyclerViewAdapter.SpaceViewHolder> {
 
     private final ItemInteractionListener mListener;
     private final SpaceActivity activity;
 
 
-    public SingleTrackRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<Proposal> data, ItemInteractionListener listener) {
+    public SingleTrackRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<Session> data, ItemInteractionListener listener) {
         super(activity, data, true);
         this.activity = activity;
         mListener = listener;
@@ -53,7 +54,7 @@ public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Pro
     public class SpaceViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
-        public Proposal mItem;
+        public Session mItem;
 
         public SpaceViewHolder(View view) {
             super(view);
