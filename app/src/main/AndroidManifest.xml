@@ -11,15 +11,15 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".space.SpaceActivity">
+        <activity android:name=".spaces.SpacesActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".space.SpaceActivity"></activity>
         <activity android:name=".session.SessionActivity" />
-        <activity android:name=".helpers.BaseActivity"></activity>
     </application>
 
 </manifest>

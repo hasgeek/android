@@ -15,6 +15,7 @@ import com.hasgeek.funnel.data.DataManager;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
+import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
 
 import io.realm.Realm;
@@ -23,13 +24,14 @@ import io.realm.RealmResults;
 public class SingleTrackFragment extends BaseFragment {
 
     private ItemInteractionListener mListener;
-
+    private String spaceId;
     public SingleTrackFragment() {
     }
 
-    public static SingleTrackFragment newInstance(ItemInteractionListener itemInteractionListener) {
+    public static SingleTrackFragment newInstance(String spaceId, ItemInteractionListener<Session> itemInteractionListener) {
         SingleTrackFragment fragment = new SingleTrackFragment();
         fragment.mListener = itemInteractionListener;
+        fragment.spaceId = spaceId;
         return fragment;
     }
 
@@ -49,8 +51,7 @@ public class SingleTrackFragment extends BaseFragment {
             final RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-
-            RealmResults<Session> sessions = SessionService.getSessionsBySpaceId(Realm.getDefaultInstance(), "84");
+            RealmResults<Session> sessions = SessionService.getSessionsBySpaceId(Realm.getDefaultInstance(), spaceId);
             l("We have: "+sessions.size()+" items");
             recyclerView.setAdapter(new SingleTrackRecyclerViewAdapter((SpaceActivity)getActivity(), sessions, mListener));
 

@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.hasgeek.funnel.data.SessionService;
 import com.hasgeek.funnel.helpers.BaseActivity;
@@ -17,10 +18,13 @@ import com.hasgeek.funnel.data.DataManager;
 import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
 
+import io.realm.RealmChangeListener;
+import io.realm.RealmModel;
+
 public class SessionActivity extends BaseActivity {
 
     public static final String EXTRA_SESSION_ID = "session_id";
-
+    Session session;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +34,7 @@ public class SessionActivity extends BaseActivity {
         final String sessionId = intent.getStringExtra(EXTRA_SESSION_ID);
 
 
-        Session session = SessionService.getSessionById_Hot(getRealm(), sessionId);
+        session = SessionService.getSessionById_Hot(getRealm(), sessionId);
 
         if(session==null) {
             finish();
@@ -41,10 +45,6 @@ public class SessionActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle(session.getTitle());
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.session_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +52,32 @@ public class SessionActivity extends BaseActivity {
                 Snackbar.make(view, "Feedback submitted \uD83D\uDC4C", Snackbar.LENGTH_LONG).show();
             }
         });
+
+        initViews();
+
+        session.addChangeListener(new RealmChangeListener<RealmModel>() {
+            @Override
+            public void onChange(RealmModel element) {
+                initViews();
+            }
+        });
+
+    }
+
+    void initViews() {
+
+        getSupportActionBar().setTitle(session.getTitle());
+
+        getSupportActionBar().setSubtitle("By "+session.getSpeaker());
+
+
+
+        TextView descriptionTv = (TextView) findViewById(R.id.activity_session_description);
+
+        TextView speakerBioTv = (TextView) findViewById(R.id.activity_session_speaker_bio);
+
+        descriptionTv.setText(session.getDescriptionText());
+        speakerBioTv.setText(session.getSpeakerBioText());
 
     }
 

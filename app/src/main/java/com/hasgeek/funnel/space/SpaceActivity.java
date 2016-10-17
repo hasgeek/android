@@ -28,7 +28,6 @@ import com.hasgeek.funnel.data.SpaceService;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIService;
-import com.hasgeek.funnel.data.DatabaseService;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
@@ -41,20 +40,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class SpaceActivity extends BaseActivity {
 
+    public static final String EXTRA_SPACE_ID = "extra_space_id";
     private DrawerLayout mDrawerLayout;
     public Spinner mSpinner;
-    public String selectedEvent;
+
+    public Space space;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_spaces_list);
+        setContentView(R.layout.activity_space);
+
+        Intent intent = getIntent();
+        String spaceId = intent.getStringExtra(EXTRA_SPACE_ID);
+
+        space = SpaceService.getSpaceById_Cold(getRealm(), spaceId);
+
+        if(space==null) {
+            finish();
+            toast("No session with that ID found");
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.spaces_list_toolbar);
         setSupportActionBar(toolbar);
@@ -106,81 +119,77 @@ public class SpaceActivity extends BaseActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        APIService.getService().getAllSpaces()
-                .doOnNext(new Action1<List<Space>>() {
+//        APIService.getService().getProposals(space.getId())
+//                .doOnNext(new Action1<List<Proposal>>() {
+//                    @Override
+//                    public void call(List<Proposal> proposals) {
+//                        Realm realm = Realm.getDefaultInstance();
+//                        Space space = SpaceService.getSpaceById_Cold(realm, "84");
+//                        for (Proposal p: proposals) {
+//                            p.setSpace(space);
+//                        }
+//                        ProposalService.saveProposals(realm, proposals);
+//                        realm.close();
+//                        l("Saved proposals for "+space.getTitle());
+//                    }
+//                })
+//                .subscribeOn(Schedulers.io())
+//                .unsubscribeOn(AndroidSchedulers.mainThread())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Subscriber<List<Proposal>>() {
+//                    @Override
+//                    public void onCompleted() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    @Override
+//                    public void onNext(List<Proposal> proposals) {
+//                        Toast.makeText(getApplicationContext(), "Updated data: " + proposals.size() + " proposals.", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+        APIService.getService().getSessions(space.getId())
+                .doOnNext(new Action1<List<Session>>() {
                     @Override
-                    public void call(List<Space> spaceList) {
+                    public void call(List<Session> sessions) {
                         Realm realm = Realm.getDefaultInstance();
-                        SpaceService.saveSpaces(realm, spaceList);
+                        SessionService.saveSessions(realm, sessions);
                         realm.close();
-                        l("Saved spaces");
+                        l("Saved sessions for space");
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<Space>>() {
+                .subscribe(new Subscriber<List<Session>>() {
                     @Override
-                    public void call(List<Space> spaceList) {
-                        Toast.makeText(getApplicationContext(), "Updated data: "+spaceList.size()+" spaces.", Toast.LENGTH_SHORT).show();
+                    public void onCompleted() {
 
-                        Space s = SpaceService.getSpaceById_Cold(getRealm(), "84");
-                        APIService.getService().getProposals(s.getId())
-                                .doOnNext(new Action1<List<Proposal>>() {
-                                    @Override
-                                    public void call(List<Proposal> proposals) {
-                                        Realm realm = Realm.getDefaultInstance();
-                                        Space space = SpaceService.getSpaceById_Cold(realm, "84");
-                                        for (Proposal p: proposals) {
-                                            p.setSpace(space);
-                                        }
-                                        ProposalService.saveProposals(realm, proposals);
-                                        realm.close();
-                                        l("Saved proposals for "+space.getTitle());
-                                    }
-                                })
-                                .subscribeOn(Schedulers.io())
-                                .unsubscribeOn(AndroidSchedulers.mainThread())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Action1<List<Proposal>>() {
-                                    @Override
-                                    public void call(List<Proposal> proposals) {
-                                        Toast.makeText(getApplicationContext(), "Updated data: " + proposals.size() + " proposals.", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                        APIService.getService().getSessions(s.getId())
-                                .doOnNext(new Action1<List<Session>>() {
-                                    @Override
-                                    public void call(List<Session> sessions) {
-                                        Realm realm = Realm.getDefaultInstance();
-                                        SessionService.saveSessions(realm, sessions);
-                                        realm.close();
-                                        l("Saved sessions for space");
-                                    }
-                                })
-                                .subscribeOn(Schedulers.io())
-                                .unsubscribeOn(AndroidSchedulers.mainThread())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(new Action1<List<Session>>() {
-                                    @Override
-                                    public void call(List<Session> sessions) {
-                                        Toast.makeText(getApplicationContext(), "Updated data: " + sessions.size() + " sessions.", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(List<Session> sessions) {
+                        Toast.makeText(getApplicationContext(), "Updated data: " + sessions.size() + " sessions.", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-
-
-
     }
 
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(SingleTrackFragment.newInstance(itemInteractionListener), "Main Auditorium");
-        adapter.addFragment(SingleTrackFragment.newInstance(itemInteractionListener), "Auditorium 2");
-        adapter.addFragment(SingleTrackFragment.newInstance(itemInteractionListener), "Banquet Hall");
-        adapter.addFragment(SingleTrackFragment.newInstance(itemInteractionListener), "BOF Area");
+        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Main Auditorium");
+        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Auditorium 2");
+        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Banquet Hall");
+        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "BOF Area");
         viewPager.setAdapter(adapter);
     }
 

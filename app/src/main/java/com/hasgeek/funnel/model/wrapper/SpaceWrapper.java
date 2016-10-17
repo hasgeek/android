@@ -1,5 +1,6 @@
 package com.hasgeek.funnel.model.wrapper;
 
+import com.google.gson.annotations.SerializedName;
 import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
@@ -16,6 +17,7 @@ public class SpaceWrapper {
 
     public Space space;
 
+    @SerializedName("proposals")
     public List<Proposal> proposals;
 
 }

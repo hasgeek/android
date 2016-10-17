@@ -1,4 +1,4 @@
-package com.hasgeek.funnel.space.fragments;
+package com.hasgeek.funnel.spaces;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,20 +8,21 @@ import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
-import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
+import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
 
 import io.realm.OrderedRealmCollection;
+import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Session, SingleTrackRecyclerViewAdapter.SpaceViewHolder> {
+public class SpacesRecyclerViewAdapter extends RealmRecyclerViewAdapter<Space, SpacesRecyclerViewAdapter.SpaceViewHolder> {
 
     private final ItemInteractionListener mListener;
-    private final SpaceActivity activity;
+    private final SpacesActivity activity;
 
 
-    public SingleTrackRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<Session> data, ItemInteractionListener<Session> listener) {
+    public SpacesRecyclerViewAdapter(SpacesActivity activity, OrderedRealmCollection<Space> data, ItemInteractionListener<Space> listener) {
         super(activity, data, true);
         this.activity = activity;
         mListener = listener;
@@ -45,7 +46,9 @@ public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Ses
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onItemClick(v, holder.mItem);
+                    Realm realm = Realm.getDefaultInstance();
+                    mListener.onItemClick(v, realm.copyFromRealm(holder.mItem));
+                    realm.close();
                 }
             }
         });
@@ -54,7 +57,7 @@ public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Ses
     public class SpaceViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
-        public Session mItem;
+        public Space mItem;
 
         public SpaceViewHolder(View view) {
             super(view);
