@@ -25,7 +25,9 @@ import rx.schedulers.Schedulers;
 public class DatabaseService {
 
     public static void init(Context context) {
-        RealmConfiguration config = new RealmConfiguration.Builder(context).build();
+        RealmConfiguration config = new RealmConfiguration.Builder(context)
+                .deleteRealmIfMigrationNeeded()
+                .build();
         Realm.setDefaultConfiguration(config);
     }
 
