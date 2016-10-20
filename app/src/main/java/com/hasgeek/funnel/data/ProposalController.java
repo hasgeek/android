@@ -12,7 +12,7 @@ import io.realm.RealmResults;
  * Project: android
  */
 
-public class ProposalService {
+public class ProposalController {
 
     public static RealmResults<Proposal> getConfirmedProposals(Realm realm, String spaceId) {
         return realm.where(Proposal.class)

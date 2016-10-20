@@ -1,7 +1,6 @@
 package com.hasgeek.funnel.session;
 
 import android.content.Intent;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.os.Bundle;
@@ -11,11 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.hasgeek.funnel.data.SessionService;
+import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
-import com.hasgeek.funnel.data.DataManager;
-import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
 
 import io.realm.RealmChangeListener;
@@ -34,7 +31,7 @@ public class SessionActivity extends BaseActivity {
         final String sessionId = intent.getStringExtra(EXTRA_SESSION_ID);
 
 
-        session = SessionService.getSessionById_Hot(getRealm(), sessionId);
+        session = SessionController.getSessionById_Hot(getRealm(), sessionId);
 
         if(session==null) {
             finish();

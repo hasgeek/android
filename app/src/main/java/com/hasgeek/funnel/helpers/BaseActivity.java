@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.hasgeek.funnel.data.DatabaseService;
+import com.hasgeek.funnel.data.DatabaseController;
 
 import io.realm.Realm;
 
@@ -15,7 +15,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DatabaseService.init(getApplicationContext());
+        DatabaseController.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
     }
 

@@ -8,14 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.hasgeek.funnel.data.SessionService;
+import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.R;
-import com.hasgeek.funnel.data.DataManager;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
-import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
-import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
 
 import io.realm.Realm;
@@ -51,7 +48,7 @@ public class SingleTrackFragment extends BaseFragment {
             final RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-            RealmResults<Session> sessions = SessionService.getSessionsBySpaceId(Realm.getDefaultInstance(), spaceId);
+            RealmResults<Session> sessions = SessionController.getSessionsBySpaceId(Realm.getDefaultInstance(), spaceId);
             l("We have: "+sessions.size()+" items");
             recyclerView.setAdapter(new SingleTrackRecyclerViewAdapter((SpaceActivity)getActivity(), sessions, mListener));
 

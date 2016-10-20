@@ -19,7 +19,6 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
-import io.realm.RealmResults;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -27,31 +26,29 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 /**
  * Author: @karthikb351
  * Project: zalebi
  */
-public class APIService {
+public class APIController {
 
-    public static APIService apiService;
+    public static APIController apiController;
     public static TalkfunnelAPI api;
 
-    public static APIService getService() {
-        if(apiService == null) {
-            apiService = new APIService();
-            apiService.api = apiService.createService();
+    public static APIController getService() {
+        if(apiController == null) {
+            apiController = new APIController();
+            apiController.api = apiController.createController();
         }
-        return apiService;
+        return apiController;
     }
-    public TalkfunnelAPI createService() {
-        return createService(null);
+    public TalkfunnelAPI createController() {
+        return createController(null);
     }
-    public TalkfunnelAPI createService(String spaceUrl) {
+    public TalkfunnelAPI createController(String spaceUrl) {
 
         Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
             @Override
@@ -94,9 +91,9 @@ public class APIService {
     }
 
     public Observable<List<Proposal>> getProposals(String id) {
-        Space s = SpaceService.getSpaceById_Cold(Realm.getDefaultInstance(), id);
+        Space s = SpaceController.getSpaceById_Cold(Realm.getDefaultInstance(), id);
 
-        TalkfunnelAPI api = createService(s.getUrl());
+        TalkfunnelAPI api = createController(s.getUrl());
         return api.getSpace()
                 .flatMap(new Func1<SpaceWrapper, Observable<List<Proposal>>>() {
                     @Override
@@ -112,7 +109,7 @@ public class APIService {
 
     public Observable<List<Session>> getSessions(String id) {
 
-        final Space space = SpaceService.getSpaceById_Cold(Realm.getDefaultInstance(), id);
+        final Space space = SpaceController.getSpaceById_Cold(Realm.getDefaultInstance(), id);
 
 
         return Observable.create(new Observable.OnSubscribe<List<Session>>() {

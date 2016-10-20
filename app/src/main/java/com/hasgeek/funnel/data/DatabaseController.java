@@ -22,7 +22,7 @@ import rx.schedulers.Schedulers;
  * Author: @karthikb351
  * Project: zalebi
  */
-public class DatabaseService {
+public class DatabaseController {
 
     public static void init(Context context) {
         RealmConfiguration config = new RealmConfiguration.Builder(context)

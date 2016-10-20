@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -19,18 +18,15 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.hasgeek.funnel.data.ProposalService;
-import com.hasgeek.funnel.data.SessionService;
-import com.hasgeek.funnel.data.SpaceService;
+import com.hasgeek.funnel.data.SessionController;
+import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
-import com.hasgeek.funnel.data.APIService;
+import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
-import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.session.SessionActivity;
@@ -64,7 +60,7 @@ public class SpaceActivity extends BaseActivity {
         Intent intent = getIntent();
         String spaceId = intent.getStringExtra(EXTRA_SPACE_ID);
 
-        space = SpaceService.getSpaceById_Cold(getRealm(), spaceId);
+        space = SpaceController.getSpaceById_Cold(getRealm(), spaceId);
 
         if(space==null) {
             finish();
@@ -144,12 +140,12 @@ public class SpaceActivity extends BaseActivity {
 //                    }
 //                });
 
-        APIService.getService().getSessions(space.getId())
+        APIController.getService().getSessions(space.getId())
                 .doOnNext(new Action1<List<Session>>() {
                     @Override
                     public void call(List<Session> sessions) {
                         Realm realm = Realm.getDefaultInstance();
-                        SessionService.saveSessions(realm, sessions);
+                        SessionController.saveSessions(realm, sessions);
                         realm.close();
                         l("Saved sessions for space");
                     }

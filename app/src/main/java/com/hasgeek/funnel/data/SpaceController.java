@@ -12,7 +12,7 @@ import io.realm.RealmResults;
  * Project: android
  */
 
-public class SpaceService {
+public class SpaceController {
 
     public static RealmResults<Space> getSpaces(Realm realm) {
         return realm.where(Space.class).findAll();

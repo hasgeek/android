@@ -12,7 +12,7 @@ import io.realm.RealmResults;
  * Project: android
  */
 
-public class SessionService {
+public class SessionController {
 
     public static RealmResults<Session> getSessionsBySpaceId(Realm realm, String id) {
         return realm.where(Session.class)
