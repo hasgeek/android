@@ -25,27 +25,16 @@
                 android:background="?attr/colorPrimary"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:layout_scrollFlags="scroll|enterAlways|snap">
-
-
-                <Spinner
-                    android:id="@+id/spinner_nav"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
             </android.support.v7.widget.Toolbar>
-
-            <android.support.design.widget.TabLayout
-                android:id="@+id/tabs"
-                app:tabMode="scrollable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
 
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewpager"
+        <FrameLayout
+            android:id="@+id/activity_space_fragment_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"

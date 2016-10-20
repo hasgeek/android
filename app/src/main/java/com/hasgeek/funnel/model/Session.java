@@ -140,7 +140,7 @@ public class Session extends RealmObject{
         this.proposal = proposal;
     }
 
-    public Object getRoom() {
+    public String getRoom() {
         return room;
     }
 

@@ -10,6 +10,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -34,6 +35,7 @@ import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.session.SessionActivity;
 import com.hasgeek.funnel.space.fragments.ScannerFragment;
+import com.hasgeek.funnel.space.fragments.ScheduleFragment;
 import com.hasgeek.funnel.space.fragments.SingleTrackFragment;
 
 import java.util.ArrayList;
@@ -83,19 +85,10 @@ public class SpaceActivity extends BaseActivity {
             setupDrawerContent(navigationView);
         }
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        if (viewPager != null) {
-            setupViewPager(viewPager);
-        }
-
-        mSpinner = (Spinner) findViewById(R.id.spinner_nav);
-        List<String> list = new ArrayList<String>();
-        list.add("Day 1");
-        list.add("Day 2");
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,list);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinner.setAdapter(adapter);
-
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ScheduleFragment.newInstance(space.getId(), itemInteractionListener));
+        fragmentTransaction.commit();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,8 +109,6 @@ public class SpaceActivity extends BaseActivity {
             }
         });
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
 
 //        APIService.getService().getProposals(space.getId())
 //                .doOnNext(new Action1<List<Proposal>>() {
@@ -189,7 +180,7 @@ public class SpaceActivity extends BaseActivity {
         adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Main Auditorium");
         adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Auditorium 2");
         adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Banquet Hall");
-        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "BOF Area");
+        adapter.addFragment(ScheduleFragment.newInstance(space.getId(), itemInteractionListener), "BOF Area");
         viewPager.setAdapter(adapter);
     }
 
