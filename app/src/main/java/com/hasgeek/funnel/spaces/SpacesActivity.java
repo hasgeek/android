@@ -83,4 +83,9 @@ public class SpacesActivity extends BaseActivity {
             }
         }));
     }
+
+    @Override
+    public void notFoundError() {
+
+    }
 }

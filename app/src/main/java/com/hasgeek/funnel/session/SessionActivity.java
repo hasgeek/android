@@ -34,8 +34,7 @@ public class SessionActivity extends BaseActivity {
         session = SessionController.getSessionById_Hot(getRealm(), sessionId);
 
         if(session==null) {
-            finish();
-            toast("No session with that ID found");
+            notFoundError();
         }
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -76,6 +75,12 @@ public class SessionActivity extends BaseActivity {
         descriptionTv.setText(session.getDescriptionText());
         speakerBioTv.setText(session.getSpeakerBioText());
 
+    }
+
+    @Override
+    public void notFoundError() {
+        finish();
+        toast("No session with that ID found");
     }
 
     @Override

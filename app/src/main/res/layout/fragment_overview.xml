@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorAccent"
+            android:padding="10sp">
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/fragment_overview_tv_headline"
+                android:padding="5sp"
+                android:maxLines="3"
+                android:ellipsize="none"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/fragment_overview_tv_description"
+                android:padding="5sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
+        </LinearLayout>
+
+        <TextView
+            android:text="Announcements"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7sp"
+            android:paddingBottom="2sp"
+            android:fontFamily="sans-serif-light"
+            tools:text="Announcements"
+            android:textAllCaps="true"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2sp"
+            android:background="@color/colorPrimaryDark" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:id="@+id/fragment_overview_tv_announcement"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+        </LinearLayout>
+
+        <TextView
+            android:text="UP NEXT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="7sp"
+            android:paddingBottom="2sp"
+            android:fontFamily="sans-serif-light"
+            tools:text="up next"
+            android:textAllCaps="true"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2sp"
+            android:background="@color/colorPrimaryDark" />
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_overview_recyclerview_upcoming"/>
+    </LinearLayout>
+
+</LinearLayout>

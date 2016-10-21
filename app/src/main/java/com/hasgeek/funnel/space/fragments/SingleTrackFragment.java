@@ -57,6 +57,11 @@ public class SingleTrackFragment extends BaseFragment {
     }
 
     @Override
+    public void notFoundError() {
+
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;

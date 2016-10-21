@@ -16,10 +16,12 @@ import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.helpers.utils.TimeUtils;
 import com.hasgeek.funnel.model.Session;
+import com.hasgeek.funnel.space.SpaceActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -27,6 +29,7 @@ import io.realm.RealmResults;
 
 public class ScheduleFragment extends BaseFragment {
 
+    public static final String EXTRA_SPACE_ID = "extra_space_id";
     private ItemInteractionListener mListener;
     private String spaceId;
     private List<WeekViewEvent> weekViewEvents;
@@ -34,22 +37,30 @@ public class ScheduleFragment extends BaseFragment {
     public ScheduleFragment() {
     }
 
-    public static ScheduleFragment newInstance(String spaceId, ItemInteractionListener<Session> itemInteractionListener) {
+    public static ScheduleFragment newInstance(String spaceId) {
         ScheduleFragment fragment = new ScheduleFragment();
-        fragment.mListener = itemInteractionListener;
-        fragment.spaceId = spaceId;
+
+        Bundle arguments = new Bundle();
+        arguments.putString(EXTRA_SPACE_ID, spaceId);
+        fragment.setArguments(arguments);
+
         return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof SpaceActivity) {
+            SpaceActivity spaceActivity = (SpaceActivity)getActivity();
+            mListener = spaceActivity.getItemInteractionListener();
+            spaceId = getArguments().getString(EXTRA_SPACE_ID, null);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_calendar_view, container, false);
+        View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 
         // Set the adapter
         if (view instanceof WeekView) {
@@ -120,6 +131,11 @@ public class ScheduleFragment extends BaseFragment {
             }
         });
         weekView.notifyDatasetChanged();
+    }
+
+    @Override
+    public void notFoundError() {
+
     }
 
     @Override

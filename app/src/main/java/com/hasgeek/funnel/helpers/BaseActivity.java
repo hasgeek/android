@@ -9,7 +9,7 @@ import com.hasgeek.funnel.data.DatabaseController;
 
 import io.realm.Realm;
 
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     public Realm realm;
     @Override
@@ -55,4 +55,6 @@ public class BaseActivity extends AppCompatActivity {
     public void li(String msg) {
         Log.i(this.getClass().getSimpleName(), msg+" ");
     }
+
+    public abstract void notFoundError();
 }

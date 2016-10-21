@@ -9,7 +9,7 @@ import android.widget.Toast;
  * Project: android
  */
 
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 
     public BaseFragment() {
 
@@ -30,4 +30,6 @@ public class BaseFragment extends Fragment {
     public void li(String msg) {
         Log.i(this.getClass().getSimpleName(), msg+" ");
     }
+
+    public abstract void notFoundError();
 }

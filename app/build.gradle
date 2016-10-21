@@ -73,6 +73,8 @@ dependencies {
     compile 'com.karumi:dexter:2.3.1'
     // Calendar view
     compile 'com.github.alamkanak:android-week-view:1.2.6'
+    // Permissions
+    compile 'com.karumi:dexter:2.3.1'
 }
 
 play {

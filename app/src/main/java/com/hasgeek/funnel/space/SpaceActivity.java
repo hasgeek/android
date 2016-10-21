@@ -2,10 +2,9 @@ package com.hasgeek.funnel.space;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -15,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,10 +29,10 @@ import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
+import com.hasgeek.funnel.scanner.ScannerActivity;
 import com.hasgeek.funnel.session.SessionActivity;
-import com.hasgeek.funnel.space.fragments.ScannerFragment;
+import com.hasgeek.funnel.space.fragments.OverviewFragment;
 import com.hasgeek.funnel.space.fragments.ScheduleFragment;
-import com.hasgeek.funnel.space.fragments.SingleTrackFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +47,7 @@ public class SpaceActivity extends BaseActivity {
 
     public static final String EXTRA_SPACE_ID = "extra_space_id";
     private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
     public Spinner mSpinner;
 
     public Space space;
@@ -63,47 +64,41 @@ public class SpaceActivity extends BaseActivity {
         space = SpaceController.getSpaceById_Cold(getRealm(), spaceId);
 
         if(space==null) {
-            finish();
-            toast("No session with that ID found");
+            notFoundError();
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.spaces_list_toolbar);
         setSupportActionBar(toolbar);
 
-        final ActionBar ab = getSupportActionBar();
-        ab.setDisplayShowTitleEnabled(false);
-        ab.setDisplayHomeAsUpEnabled(true);
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                //getActionBar().setTitle(mTitle);
+                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                //getActionBar().setTitle(mDrawerTitle);
+                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerToggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ScheduleFragment.newInstance(space.getId(), itemInteractionListener));
-        fragmentTransaction.commit();
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fm = getSupportFragmentManager();
-                ScannerFragment scannerFragment = new ScannerFragment();
-                scannerFragment.show(fm, "scanner_fragment");
-                Snackbar.make(view, "Hang on, who are you?", Snackbar.LENGTH_LONG)
-                        .setAction("Login", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                String url = "http://auth.hasgeek.com/auth?client_id=eDnmYKApSSOCXonBXtyoDQ&scope=id+email+phone+organizations+teams+com.talkfunnel:*&response_type=token";
-                                Intent i = new Intent(Intent.ACTION_VIEW);
-                                i.setData(Uri.parse(url));
-                                startActivity(i);
-                            }
-                        }).show();
-            }
-        });
 
 
 //        APIService.getService().getProposals(space.getId())
@@ -169,14 +164,50 @@ public class SpaceActivity extends BaseActivity {
                         Toast.makeText(getApplicationContext(), "Updated data: " + sessions.size() + " sessions.", Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        switchToOverview();
+    }
+
+
+    void switchToOverview() {
+
+        getSupportActionBar().setTitle("Overview");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.activity_space_fragment_frame, OverviewFragment.newInstance(space.getId()));
+        fragmentTransaction.commit();
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBadgeScan(view);
+            }
+        });
+    }
+
+    void switchToSchedule() {
+
+        getSupportActionBar().setTitle("Schedule");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ScheduleFragment.newInstance(space.getId()));
+        fragmentTransaction.commit();
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.VISIBLE);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBadgeScan(view);
+            }
+        });
+
     }
 
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Main Auditorium");
-        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Auditorium 2");
-        adapter.addFragment(SingleTrackFragment.newInstance(space.getId(), itemInteractionListener), "Banquet Hall");
-        adapter.addFragment(ScheduleFragment.newInstance(space.getId(), itemInteractionListener), "BOF Area");
+        adapter.addFragment(ScheduleFragment.newInstance(space.getId()), "BOF Area");
         viewPager.setAdapter(adapter);
     }
 
@@ -185,21 +216,31 @@ public class SpaceActivity extends BaseActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
                         mDrawerLayout.closeDrawers();
                         switch (menuItem.getItemId()) {
                             case R.id.nav_overview:
+                                if (!menuItem.isChecked())
+                                    switchToOverview();
                                 break;
                             case R.id.nav_schedule:
+                                if (!menuItem.isChecked())
+                                    switchToSchedule();
                                 break;
                             case R.id.nav_contacts:
                                 break;
                             case R.id.nav_discussion:
                                 break;
                         }
+                        menuItem.setChecked(true);
                         return true;
                     }
                 });
+    }
+
+    @Override
+    public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onPostCreate(savedInstanceState, persistentState);
+        mDrawerToggle.syncState();
     }
 
     @Override
@@ -241,16 +282,60 @@ public class SpaceActivity extends BaseActivity {
         }
     }
 
+    void showBadgeScan(View view) {
+
+        if(view == null)
+            view = getCurrentFocus();
+
+        Intent intent = new Intent(view.getContext(), ScannerActivity.class);
+        view.getContext().startActivity(intent);
+
+//        Snackbar.make(view, "Hang on, who are you?", Snackbar.LENGTH_LONG)
+//                .setAction("Login", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        String url = "http://auth.hasgeek.com/auth?client_id=eDnmYKApSSOCXonBXtyoDQ&scope=id+email+phone+organizations+teams+com.talkfunnel:*&response_type=token";
+//                        Intent i = new Intent(Intent.ACTION_VIEW);
+//                        i.setData(Uri.parse(url));
+//                        startActivity(i);
+//                    }
+//                }).show();
+
+    }
+
+    void showSessionDetails(Context context, Session session) {
+        Intent intent = new Intent(context, SessionActivity.class);
+        intent.putExtra(SessionActivity.EXTRA_SESSION_ID, session.getId());
+        context.startActivity(intent);
+    }
+
+    OverviewFragment.OverviewFragmentInteractionListener overviewFragmentInteractionListener = new OverviewFragment.OverviewFragmentInteractionListener() {
+        @Override
+        public void onScheduleClick() {
+            switchToSchedule();
+        }
+
+        @Override
+        public void onScanBadgeClick(View v) {
+            showBadgeScan(v);
+        }
+
+        @Override
+        public void onSessionClick(Session s) {
+            showSessionDetails(SpaceActivity.this, s);
+        }
+    };
+
+    @Override
+    public void notFoundError() {
+        finish();
+        toast("Space not found");
+    }
+
     ItemInteractionListener itemInteractionListener = new ItemInteractionListener<Session>() {
         @Override
         public void onItemClick(View v, Session session) {
-
-            Context context = v.getContext();
-            Intent intent = new Intent(context, SessionActivity.class);
-            intent.putExtra(SessionActivity.EXTRA_SESSION_ID, session.getId());
-
-            context.startActivity(intent);
-
+            showSessionDetails(v.getContext(), session);
         }
 
         @Override
@@ -258,4 +343,12 @@ public class SpaceActivity extends BaseActivity {
 
         }
     };
+
+    public OverviewFragment.OverviewFragmentInteractionListener getOverviewFragmentInteractionListener() {
+        return overviewFragmentInteractionListener;
+    }
+
+    public ItemInteractionListener getItemInteractionListener() {
+        return itemInteractionListener;
+    }
 }
