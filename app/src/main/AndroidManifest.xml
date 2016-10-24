@@ -19,11 +19,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".space.SpaceActivity"/>
-        <activity android:name=".session.SessionActivity"/>
+        <activity android:name=".space.SpaceActivity" />
+        <activity android:name=".session.SessionActivity" />
         <activity
             android:name=".scanner.ScannerActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

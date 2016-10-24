@@ -33,6 +33,7 @@ import com.hasgeek.funnel.scanner.ScannerActivity;
 import com.hasgeek.funnel.session.SessionActivity;
 import com.hasgeek.funnel.space.fragments.OverviewFragment;
 import com.hasgeek.funnel.space.fragments.ScheduleFragment;
+import com.hasgeek.funnel.space.fragments.SingleTrackFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class SpaceActivity extends BaseActivity {
         setContentView(R.layout.activity_space);
 
         Intent intent = getIntent();
-        String spaceId = intent.getStringExtra(EXTRA_SPACE_ID);
+        final String spaceId = intent.getStringExtra(EXTRA_SPACE_ID);
 
         space = SpaceController.getSpaceById_Cold(getRealm(), spaceId);
 
@@ -140,6 +141,7 @@ public class SpaceActivity extends BaseActivity {
                     @Override
                     public void call(List<Session> sessions) {
                         Realm realm = Realm.getDefaultInstance();
+                        SessionController.deleteSessions(realm, space.getId());
                         SessionController.saveSessions(realm, sessions);
                         realm.close();
                         l("Saved sessions for space");
@@ -205,6 +207,15 @@ public class SpaceActivity extends BaseActivity {
 
     }
 
+    void switchToContacts() {
+
+        getSupportActionBar().setTitle("Schedule");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.activity_space_fragment_frame, SingleTrackFragment.newInstance(space.getId()));
+        fragmentTransaction.commit();
+    }
+
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
         adapter.addFragment(ScheduleFragment.newInstance(space.getId()), "BOF Area");
@@ -227,6 +238,8 @@ public class SpaceActivity extends BaseActivity {
                                     switchToSchedule();
                                 break;
                             case R.id.nav_contacts:
+                                if (!menuItem.isChecked())
+                                    switchToContacts();
                                 break;
                             case R.id.nav_discussion:
                                 break;

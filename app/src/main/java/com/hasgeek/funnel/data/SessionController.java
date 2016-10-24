@@ -1,6 +1,7 @@
 package com.hasgeek.funnel.data;
 
 import com.hasgeek.funnel.model.Session;
+import com.hasgeek.funnel.model.Space;
 
 import java.util.List;
 
@@ -31,6 +32,12 @@ public class SessionController {
     public static void saveSessions(Realm realm, final List<Session> sessions) {
         realm.beginTransaction();
         realm.copyToRealmOrUpdate(sessions);
+        realm.commitTransaction();
+    }
+
+    public static void deleteSessions(Realm realm, String spaceId) {
+        realm.beginTransaction();
+        realm.where(Session.class).equalTo("space.id", spaceId).findAll().deleteAllFromRealm();
         realm.commitTransaction();
     }
 }

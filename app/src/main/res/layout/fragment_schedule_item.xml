@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:text="12:00 PM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_schedule_item_time"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:text="The Mutable State Monster And How To Defeat It The Mutable State Monster And How To Defeat It"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="0dp"
+        android:paddingTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_schedule_item_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textSize="16sp" />
+
+    <TextView
+        android:text="Anup Cowkar, Go-Jek"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_schedule_item_speaker"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        tools:text="Anup Cowkar, Go-Jek" />
+
+    <TextView
+        android:text="Main Auditorium"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/fragment_schedule_item_location"
+        android:textSize="12sp"
+        android:textStyle="normal|bold"
+        android:textAllCaps="true"
+        tools:text="Main Auditorium" />
+</LinearLayout>
