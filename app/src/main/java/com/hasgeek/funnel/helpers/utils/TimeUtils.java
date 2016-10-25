@@ -25,4 +25,17 @@ public class TimeUtils {
         }
         return calendar;
     }
+
+    public static int getTimeDifferenceInMinutes(Calendar c1, Calendar c2) {
+        try {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
+            Date d1 = simpleDateFormat.parse(simpleDateFormat.format(c1.getTime()));
+            Date d2 = simpleDateFormat.parse(simpleDateFormat.format(c2.getTime()));
+            return (int)((Math.abs(d1.getTime() - d2.getTime())/ 1000) / 60);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+
+    }
 }

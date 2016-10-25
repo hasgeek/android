@@ -1,1 +1,1 @@
-include ':app', ':hasgeeksandbox'
+include ':app'

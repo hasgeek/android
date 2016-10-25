@@ -2,6 +2,7 @@ package com.hasgeek.funnel.space.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,6 +28,7 @@ import org.w3c.dom.Text;
 
 import java.sql.Array;
 import java.sql.Time;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,6 +48,7 @@ public class SingleTrackFragment extends BaseFragment {
 
     private static final String EXTRA_SPACE_ID = "extra_space_id";
     private String spaceId;
+    private ItemInteractionListener<Session> sessionItemInteractionListener;
     public SingleTrackFragment() {
     }
 
@@ -63,6 +66,7 @@ public class SingleTrackFragment extends BaseFragment {
         if (context instanceof SpaceActivity) {
             SpaceActivity spaceActivity = (SpaceActivity)getActivity();
             spaceId = getArguments().getString(EXTRA_SPACE_ID, null);
+            sessionItemInteractionListener = (ItemInteractionListener<Session>) spaceActivity.getItemInteractionListener();
         }
     }
 
@@ -83,10 +87,19 @@ public class SingleTrackFragment extends BaseFragment {
         }
         l("We have: "+sessions.size()+" items");
 
-        List<SessionViewHolder> sessionViewHolderList = scheduleHelper(sessions);
+        List<SessionViewHolder> sessionViewHolderList = null;
 
         int width = 0;
         int height = 0;
+
+        try {
+            ScheduleHelper scheduleHelper = new ScheduleHelper(sessions);
+            sessionViewHolderList = scheduleHelper.getSessionViewHolderList();
+            height = scheduleHelper.getMaxHeight();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            sessionViewHolderList = new ArrayList<>();
+        }
         for (SessionViewHolder s: sessionViewHolderList) {
             l(s.toString());
             LinearLayout linearLayout = getScheduleViewForSession(inflater, relativeLayout, s.s);
@@ -102,7 +115,7 @@ public class SingleTrackFragment extends BaseFragment {
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(relativeLayout.getLayoutParams());
         layoutParams.height = height;
-        layoutParams.width = width;
+        layoutParams.width = width + 5;
 
         ViewGroup parent = (ViewGroup)relativeLayout.getParent();
         if (parent!=null){
@@ -123,14 +136,41 @@ public class SingleTrackFragment extends BaseFragment {
 
         LinearLayout linearLayout = (LinearLayout)inflater.inflate(R.layout.fragment_schedule_item, container, false);
 
+        LinearLayout background = (LinearLayout)linearLayout.findViewById(R.id.fragment_schedule_item_layout);
+
         TextView title = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_title);
         TextView speaker = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_speaker);
         TextView location = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_location);
         TextView time = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_time);
 
         title.setText(s.getTitle());
-        speaker.setText(s.getSpeaker());
-        location.setText("Main Auditorium");
+
+        String speakerText = s.getSpeaker();
+
+        if (speakerText==null) {
+            speaker.setVisibility(View.GONE);
+        } else if (speakerText.equals("")) {
+            speaker.setVisibility(View.GONE);
+        } else {
+            speaker.setText(speakerText);
+        }
+
+
+        if(s.getRoom()==null) {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
+            location.setText("Main Auditorium");
+        } else if(s.getRoom().contains("audi")) {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
+            location.setText("Main Auditorium");
+        }
+        else {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
+            location.setText("Banquet Hall");
+        }
+
+        if (s.getIsBreak()) {
+            background.setBackgroundColor(Color.LTGRAY);
+        }
 
         time.setText(getSimpleTime(s.getStart()));
 
@@ -176,56 +216,116 @@ public class SingleTrackFragment extends BaseFragment {
         }
     }
 
-    public List<SessionViewHolder> scheduleHelper(List<Session> sessions) {
-        int TRACK_WIDTH = 800;
-        int SESSION_HEIGHT = 300;
+    String getKeyForTime(Calendar c) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
+        return simpleDateFormat.format(c.getTime());
+    }
 
-        HashMap<String, Integer> timeMap = new HashMap<>();
-        HashMap<String, Integer> trackMap = new HashMap<>();
-        int trackCount = 0;
-        for(Session s: sessions) {
-            if (!trackMap.containsKey( s.getRoom()!=null ? "Main Audi" : "Banquet"));
-                trackMap.put(s.getRoom()!=null ? "Main Audi" : "Banquet", trackCount++);
-            timeMap.put(getSimpleTime(s.getStart()), 0);
-            timeMap.put(getSimpleTime(s.getEnd()), 0);
-        }
-        Collections.sort(sessions, new Comparator<Session>() {
-            @Override
-            public int compare(Session s1, Session s2) {
-                Calendar t1 = TimeUtils.getCalendarFromISODateString(s1.getStart());
-                Calendar t2 = TimeUtils.getCalendarFromISODateString(s2.getStart());
-                return t1.compareTo(t2);
-            }
-        });
+    public class ScheduleHelper {
+        int TRACK_WIDTH = 800;
+        int MIN_SESSION_HEIGHT = 350;
+        int SEGMENT_HEIGHT = 10;
+        int maxHeight = 0;
 
         List<SessionViewHolder> sessionViewHolderList = new ArrayList<>();
 
-        for (Session s: sessions) {
-            int top = timeMap.get(getSimpleTime(s.getStart()));
+        public ScheduleHelper(List<Session> sessions) throws ParseException {
 
-            int mul = 0;
-            if(s.getRoom()==null) {
-                mul = 0;
-            } else if(s.getRoom().contains("audi")) {
-                mul = 1;
+            Collections.sort(sessions, new Comparator<Session>() {
+                @Override
+                public int compare(Session s1, Session s2) {
+                    Calendar t1 = TimeUtils.getCalendarFromISODateString(s1.getStart());
+                    Calendar t2 = TimeUtils.getCalendarFromISODateString(s2.getStart());
+                    return t1.compareTo(t2);
+                }
+            });
+
+            HashMap<String, Integer> masterTimeMap = new HashMap<>();
+
+            String startTime = "8:00 AM";
+            String endTime = "8:00 PM";
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
+
+            Calendar c = Calendar.getInstance();
+            c.setTime(simpleDateFormat.parse(startTime));
+
+            for (int i = 0; i < 144; i++) {
+                masterTimeMap.put(getKeyForTime(c), SEGMENT_HEIGHT * i);
+                if (maxHeight< SEGMENT_HEIGHT * i)
+                    maxHeight = SEGMENT_HEIGHT * i;
+                c.add(Calendar.MINUTE, 5);
             }
-            else {
-                mul = 2;
+
+
+            for (Session s : sessions) {
+                int timeDiffInMinutes = TimeUtils.getTimeDifferenceInMinutes(TimeUtils.getCalendarFromISODateString(s.getStart()), TimeUtils.getCalendarFromISODateString(s.getEnd()));
+                l("Timediff: " + String.valueOf(timeDiffInMinutes));
+                if (timeDiffInMinutes / 5 * SEGMENT_HEIGHT < MIN_SESSION_HEIGHT) {
+                    Calendar x = Calendar.getInstance();
+                    x.setTime(simpleDateFormat.parse(getSimpleTime(s.getStart())));
+                    int offset = MIN_SESSION_HEIGHT / (timeDiffInMinutes / 5);
+                    for (int y = 0; y < timeDiffInMinutes / 5; y++) {
+                        int h = masterTimeMap.get(getKeyForTime(x));
+                        masterTimeMap.put(getKeyForTime(x), h + offset * y);
+                        if (maxHeight < h + offset * y)
+                            maxHeight = h + offset * y;
+                        x.add(Calendar.MINUTE, 5);
+                    }
+                    do {
+                        Calendar z = Calendar.getInstance();
+                        z.setTime(x.getTime());
+                        z.add(Calendar.MINUTE, -5);
+                        int h = masterTimeMap.get(getKeyForTime(z));
+                        masterTimeMap.put(getKeyForTime(x), h + SEGMENT_HEIGHT);
+                        if (maxHeight < h + SEGMENT_HEIGHT)
+                            maxHeight = h + SEGMENT_HEIGHT;
+                        x.add(Calendar.MINUTE, 5);
+                    } while ((!simpleDateFormat.format(x.getTime()).equals(endTime)));
+
+
+                }
             }
 
-            int left = TRACK_WIDTH * mul;
-            int width = TRACK_WIDTH;
-            int height = timeMap.get(getSimpleTime(s.getEnd()));
-            int layoutHeight =  SESSION_HEIGHT;
-            timeMap.put(getSimpleTime(s.getEnd()), timeMap.get(getSimpleTime(s.getStart()))+layoutHeight);
-            height = layoutHeight;
+
+//        HashMap<String, Integer> timeMap = new HashMap<>();
+//        HashMap<String, Integer> trackMap = new HashMap<>();
+//        int trackCount = 0;
+//        for(Session s: sessions) {
+//            if (!trackMap.containsKey( s.getRoom()!=null ? "Main Audi" : "Banquet"));
+//                trackMap.put(s.getRoom()!=null ? "Main Audi" : "Banquet", trackCount++);
+//            timeMap.put(getSimpleTime(s.getStart()), 0);
+//            timeMap.put(getSimpleTime(s.getEnd()), 0);
+//        }
+//
+//
+//
+            for (Session s : sessions) {
+                int top = masterTimeMap.get(getSimpleTime(s.getStart()));
+                int height = masterTimeMap.get(getSimpleTime(s.getEnd())) - top;
+                int width = TRACK_WIDTH;
+                int mul;
+                if (s.getRoom() == null) {
+                    mul = 0;
+                } else if (s.getRoom().contains("audi")) {
+                    mul = 0;
+                } else {
+                    mul = 1;
+                }
+                int left = TRACK_WIDTH * mul;
 
 
-            sessionViewHolderList.add(new SessionViewHolder(s, top, left, width, height));
+                sessionViewHolderList.add(new SessionViewHolder(s, top, left, width, height));
 
+            }
         }
 
-        return sessionViewHolderList;
+        public List<SessionViewHolder> getSessionViewHolderList() {
+            return sessionViewHolderList;
+        }
 
+        public int getMaxHeight() {
+            return maxHeight;
+        }
     }
 }
