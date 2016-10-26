@@ -85,6 +85,11 @@ public class SpacesActivity extends BaseActivity {
     }
 
     @Override
+    public void initViews(Bundle savedInstanceState) {
+
+    }
+
+    @Override
     public void notFoundError() {
 
     }

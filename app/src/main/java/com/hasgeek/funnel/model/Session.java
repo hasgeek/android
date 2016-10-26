@@ -58,7 +58,15 @@ public class Session extends RealmObject{
     @Expose
     public String url;
 
-    public Space space;
+    private Space space;
+
+    private int marginTop;
+
+    private int marginLeft;
+
+    private int width;
+
+    private int height;
 
     public Boolean getBreak() {
         return isBreak;
@@ -218,5 +226,38 @@ public class Session extends RealmObject{
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+
+    public int getMarginTop() {
+        return marginTop;
+    }
+
+    public void setMarginTop(int marginTop) {
+        this.marginTop = marginTop;
+    }
+
+    public int getMarginLeft() {
+        return marginLeft;
+    }
+
+    public void setMarginLeft(int marginLeft) {
+        this.marginLeft = marginLeft;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
     }
 }

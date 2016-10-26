@@ -57,4 +57,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public abstract void notFoundError();
+
+    public abstract void initViews(Bundle savedInstanceState);
 }

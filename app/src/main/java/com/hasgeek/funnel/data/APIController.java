@@ -4,6 +4,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hasgeek.funnel.helpers.schedule.ScheduleHelper;
 import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import io.realm.Realm;
@@ -145,6 +147,11 @@ public class APIController {
 //
                     for(Session s: sessions) {
                         s.setSpace(space);
+                    }
+
+                    HashMap<Integer, List<Session>> hashMap = ScheduleHelper.getDayOfYearMapFromSessions(sessions);
+                    for (Integer key: hashMap.keySet()) {
+                        ScheduleHelper.addDimensToSessions(hashMap.get(key));
                     }
 
                     subscriber.onNext(sessions);

@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clickable="true">
 
     <LinearLayout
         android:id="@+id/fragment_schedule_item_layout"
@@ -12,7 +13,9 @@
         android:orientation="vertical"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="5dp"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorPrimary"
+        android:clickable="true"
+        android:foreground="?attr/selectableItemBackground">
 
         <TextView
             android:text="12:00 PM"
@@ -38,7 +41,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/fragment_schedule_item_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
-            android:textSize="16sp" />
+            android:textSize="18sp"
+            android:textStyle="normal|bold" />
 
         <TextView
             android:text="Anup Cowkar, Go-Jek"

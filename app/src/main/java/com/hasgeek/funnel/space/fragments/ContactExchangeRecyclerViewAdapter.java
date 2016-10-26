@@ -8,20 +8,19 @@ import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
-import com.hasgeek.funnel.model.Proposal;
-import com.hasgeek.funnel.model.Session;
+import com.hasgeek.funnel.model.Attendee;
 import com.hasgeek.funnel.space.SpaceActivity;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Session, SingleTrackRecyclerViewAdapter.SpaceViewHolder> {
+public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter<Attendee, ContactExchangeRecyclerViewAdapter.SpaceViewHolder> {
 
     private final ItemInteractionListener mListener;
     private final SpaceActivity activity;
 
 
-    public SingleTrackRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<Session> data, ItemInteractionListener<Session> listener) {
+    public ContactExchangeRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<Attendee> data, ItemInteractionListener<Attendee> listener) {
         super(activity, data, true);
         this.activity = activity;
         mListener = listener;
@@ -37,7 +36,7 @@ public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Ses
     @Override
     public void onBindViewHolder(final SpaceViewHolder holder, int position) {
         holder.mItem = getData().get(position);
-        holder.mIdView.setText(getData().get(position).getTitle());
+        holder.mIdView.setText(getData().get(position).getFullname());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +53,7 @@ public class SingleTrackRecyclerViewAdapter extends RealmRecyclerViewAdapter<Ses
     public class SpaceViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
-        public Session mItem;
+        public Attendee mItem;
 
         public SpaceViewHolder(View view) {
             super(view);

@@ -38,4 +38,19 @@ public class TimeUtils {
         }
 
     }
+
+    public static String getSimpleTimeForCalendar(Calendar c) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
+        return simpleDateFormat.format(c.getTime());
+    }
+
+    public static String getSimpleTimeForString(String date) {
+        Calendar cal = TimeUtils.getCalendarFromISODateString(date);
+        return getSimpleTimeForCalendar(cal);
+    }
+
+    public static String getDayOfWeekFromCalendar(Calendar c) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE");
+        return simpleDateFormat.format(c.getTime());
+    }
 }

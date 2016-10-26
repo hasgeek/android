@@ -2,41 +2,43 @@ package com.hasgeek.funnel.space;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.PersistableBundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
+import com.hasgeek.funnel.helpers.schedule.ScheduleHelper;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.scanner.ScannerActivity;
 import com.hasgeek.funnel.session.SessionActivity;
+import com.hasgeek.funnel.space.fragments.ContactExchangeFragment;
 import com.hasgeek.funnel.space.fragments.OverviewFragment;
+import com.hasgeek.funnel.space.fragments.ScheduleContainerFragment;
+import com.hasgeek.funnel.space.fragments.ScheduleLibraryFragment;
 import com.hasgeek.funnel.space.fragments.ScheduleFragment;
-import com.hasgeek.funnel.space.fragments.SingleTrackFragment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import io.realm.Realm;
 import rx.Subscriber;
@@ -47,17 +49,23 @@ import rx.schedulers.Schedulers;
 public class SpaceActivity extends BaseActivity {
 
     public static final String EXTRA_SPACE_ID = "extra_space_id";
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    public Spinner mSpinner;
+
+    public static final String STATE_FRAGMENT_ID = "state_fragment_id";
+
+    public int stateCurrentFragmentId;
 
     public Space space;
+
+
+    Toolbar toolbar;
+    AHBottomNavigation bottomNavigation;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_space);
+        setContentView(R.layout.activity_space_bottombar);
 
         Intent intent = getIntent();
         final String spaceId = intent.getStringExtra(EXTRA_SPACE_ID);
@@ -68,80 +76,12 @@ public class SpaceActivity extends BaseActivity {
             notFoundError();
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.spaces_list_toolbar);
-        setSupportActionBar(toolbar);
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.app_name, R.string.app_name) {
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                //getActionBar().setTitle(mTitle);
-                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                //getActionBar().setTitle(mDrawerTitle);
-                //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        mDrawerToggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null) {
-            setupDrawerContent(navigationView);
-        }
-
-
-
-//        APIService.getService().getProposals(space.getId())
-//                .doOnNext(new Action1<List<Proposal>>() {
-//                    @Override
-//                    public void call(List<Proposal> proposals) {
-//                        Realm realm = Realm.getDefaultInstance();
-//                        Space space = SpaceService.getSpaceById_Cold(realm, "84");
-//                        for (Proposal p: proposals) {
-//                            p.setSpace(space);
-//                        }
-//                        ProposalService.saveProposals(realm, proposals);
-//                        realm.close();
-//                        l("Saved proposals for "+space.getTitle());
-//                    }
-//                })
-//                .subscribeOn(Schedulers.io())
-//                .unsubscribeOn(AndroidSchedulers.mainThread())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<List<Proposal>>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    @Override
-//                    public void onNext(List<Proposal> proposals) {
-//                        Toast.makeText(getApplicationContext(), "Updated data: " + proposals.size() + " proposals.", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-
         APIController.getService().getSessions(space.getId())
                 .doOnNext(new Action1<List<Session>>() {
                     @Override
                     public void call(List<Session> sessions) {
                         Realm realm = Realm.getDefaultInstance();
-                        SessionController.deleteSessions(realm, space.getId());
+                        SessionController.deleteSessionsBySpaceId(realm, space.getId());
                         SessionController.saveSessions(realm, sessions);
                         realm.close();
                         l("Saved sessions for space");
@@ -167,25 +107,98 @@ public class SpaceActivity extends BaseActivity {
                     }
                 });
 
-        switchToOverview();
+        initViews(savedInstanceState);
     }
 
+
+    @Override
+    public void initViews(Bundle savedInstanceState) {
+
+        toolbar = (Toolbar) findViewById(R.id.spaces_list_toolbar);
+        setSupportActionBar(toolbar);
+
+        bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
+
+        AHBottomNavigationItem overviewBottomNavItem = new AHBottomNavigationItem("Overview", getResources().getDrawable(R.drawable.ic_home), getResources().getColor(R.color.colorAccent));
+        AHBottomNavigationItem scheduleBottomNavItem = new AHBottomNavigationItem("Schedule", getResources().getDrawable(R.drawable.ic_time_schedule), getResources().getColor(R.color.colorAccent));
+        AHBottomNavigationItem contactBottomNavItem = new AHBottomNavigationItem("Contacts", getResources().getDrawable(R.drawable.ic_person), getResources().getColor(R.color.colorAccent));
+
+
+        ArrayList<AHBottomNavigationItem> bottomNavigationItems = new ArrayList<>();
+
+        bottomNavigationItems.add(overviewBottomNavItem);
+        bottomNavigationItems.add(scheduleBottomNavItem);
+        bottomNavigationItems.add(contactBottomNavItem);
+
+
+        bottomNavigation.addItems(bottomNavigationItems);
+
+
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+
+                if (wasSelected)
+                    return true;
+                switch (position) {
+                    case 0:
+                        switchToOverview();
+                        return true;
+                    case 1:
+                        switchToSchedule();
+                        return true;
+                    case 2:
+                        switchToContacts();
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        bottomNavigation.setBehaviorTranslationEnabled(false);
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        if (savedInstanceState != null )
+            stateCurrentFragmentId = savedInstanceState.getInt(STATE_FRAGMENT_ID, OverviewFragment.FRAGMENT_ID);
+        else
+            stateCurrentFragmentId = OverviewFragment.FRAGMENT_ID;
+
+        switch (stateCurrentFragmentId) {
+            case OverviewFragment.FRAGMENT_ID:
+                switchToOverview();
+                break;
+            case ScheduleLibraryFragment.FRAGMENT_ID:
+                switchToSchedule();
+                break;
+            case ScheduleFragment.FRAGMENT_ID:
+                switchToContacts();
+                break;
+        }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putInt(STATE_FRAGMENT_ID, stateCurrentFragmentId);
+
+        super.onSaveInstanceState(outState);
+    }
 
     void switchToOverview() {
 
         getSupportActionBar().setTitle("Overview");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
         fragmentTransaction.replace(R.id.activity_space_fragment_frame, OverviewFragment.newInstance(space.getId()));
         fragmentTransaction.commit();
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setVisibility(View.VISIBLE);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showBadgeScan(view);
-            }
-        });
+
+        stateCurrentFragmentId = OverviewFragment.FRAGMENT_ID;
+
+
+        fab.setVisibility(View.GONE);
     }
 
     void switchToSchedule() {
@@ -193,10 +206,28 @@ public class SpaceActivity extends BaseActivity {
         getSupportActionBar().setTitle("Schedule");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ScheduleFragment.newInstance(space.getId()));
+//        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ScheduleContainerFragment.newInstance(space.getId()));
         fragmentTransaction.commit();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        stateCurrentFragmentId = ScheduleLibraryFragment.FRAGMENT_ID;
+
+        fab.setVisibility(View.GONE);
+
+    }
+
+    void switchToContacts() {
+
+        getSupportActionBar().setTitle("Contacts");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        fragmentTransaction.setCustomAnimations(android.R.anim., android.R.anim.slide_out_right);
+        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ContactExchangeFragment.newInstance(space.getId()));
+        fragmentTransaction.commit();
+
+        stateCurrentFragmentId = ScheduleFragment.FRAGMENT_ID;
+
         fab.setVisibility(View.VISIBLE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,93 +238,6 @@ public class SpaceActivity extends BaseActivity {
 
     }
 
-    void switchToContacts() {
-
-        getSupportActionBar().setTitle("Schedule");
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.activity_space_fragment_frame, SingleTrackFragment.newInstance(space.getId()));
-        fragmentTransaction.commit();
-    }
-
-    private void setupViewPager(ViewPager viewPager) {
-        Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(ScheduleFragment.newInstance(space.getId()), "BOF Area");
-        viewPager.setAdapter(adapter);
-    }
-
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        mDrawerLayout.closeDrawers();
-                        switch (menuItem.getItemId()) {
-                            case R.id.nav_overview:
-                                if (!menuItem.isChecked())
-                                    switchToOverview();
-                                break;
-                            case R.id.nav_schedule:
-                                if (!menuItem.isChecked())
-                                    switchToSchedule();
-                                break;
-                            case R.id.nav_contacts:
-                                if (!menuItem.isChecked())
-                                    switchToContacts();
-                                break;
-                            case R.id.nav_discussion:
-                                break;
-                        }
-                        menuItem.setChecked(true);
-                        return true;
-                    }
-                });
-    }
-
-    @Override
-    public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onPostCreate(savedInstanceState, persistentState);
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    static class Adapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragments = new ArrayList<>();
-        private final List<String> mFragmentTitles = new ArrayList<>();
-
-        public Adapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragments.add(fragment);
-            mFragmentTitles.add(title);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragments.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragments.size();
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitles.get(position);
-        }
-    }
 
     void showBadgeScan(View view) {
 
@@ -345,7 +289,8 @@ public class SpaceActivity extends BaseActivity {
         toast("Space not found");
     }
 
-    ItemInteractionListener itemInteractionListener = new ItemInteractionListener<Session>() {
+
+    ItemInteractionListener sessionItemInteractionListener = new ItemInteractionListener<Session>() {
         @Override
         public void onItemClick(View v, Session session) {
             showSessionDetails(v.getContext(), session);
@@ -361,7 +306,8 @@ public class SpaceActivity extends BaseActivity {
         return overviewFragmentInteractionListener;
     }
 
-    public ItemInteractionListener getItemInteractionListener() {
-        return itemInteractionListener;
+    public ItemInteractionListener getSessionItemInteractionListener() {
+        return sessionItemInteractionListener;
     }
+
 }

@@ -55,6 +55,11 @@ public class ScannerActivity extends BaseActivity implements ZBarScannerView.Res
     }
 
     @Override
+    public void initViews(Bundle savedInstanceState) {
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         zBarScannerView.setResultHandler(this);

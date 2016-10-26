@@ -23,7 +23,7 @@ public class SessionActivity extends BaseActivity {
     public static final String EXTRA_SESSION_ID = "session_id";
     Session session;
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
@@ -49,18 +49,19 @@ public class SessionActivity extends BaseActivity {
             }
         });
 
-        initViews();
+        initViews(savedInstanceState);
 
         session.addChangeListener(new RealmChangeListener<RealmModel>() {
             @Override
             public void onChange(RealmModel element) {
-                initViews();
+                initViews(savedInstanceState);
             }
         });
 
     }
 
-    void initViews() {
+    @Override
+    public void initViews(Bundle savedInstanceState) {
 
         getSupportActionBar().setTitle(session.getTitle());
 

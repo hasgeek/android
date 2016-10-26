@@ -35,7 +35,7 @@ public class SessionController {
         realm.commitTransaction();
     }
 
-    public static void deleteSessions(Realm realm, String spaceId) {
+    public static void deleteSessionsBySpaceId(Realm realm, String spaceId) {
         realm.beginTransaction();
         realm.where(Session.class).equalTo("space.id", spaceId).findAll().deleteAllFromRealm();
         realm.commitTransaction();
