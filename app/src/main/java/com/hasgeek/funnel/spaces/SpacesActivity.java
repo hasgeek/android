@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
@@ -19,7 +22,9 @@ import com.hasgeek.funnel.space.SpaceActivity;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -32,13 +37,21 @@ import rx.schedulers.Schedulers;
 public class SpacesActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
+    private Button retryButton;
+    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spaces_list);
-        recyclerView = (RecyclerView) findViewById(R.id.activity_spaces_list_recyclerview);
 
+        initViews(savedInstanceState);
+
+        fetchSpaces();
+    }
+
+    void fetchSpaces() {
         APIController.getService().getAllSpaces()
                 .doOnNext(new Action1<List<Space>>() {
                     @Override
@@ -52,12 +65,33 @@ public class SpacesActivity extends BaseActivity {
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<Space>>() {
+                .subscribe(new Subscriber<List<Space>>() {
                     @Override
-                    public void call(List<Space> spaceList) {
-                        l("Saved "+spaceList.size()+" spaces");
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        progressBar.setVisibility(View.GONE);
+                        retryButton.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onNext(List<Space> spaces) {
+                        linearLayout.setVisibility(View.GONE);
                     }
                 });
+    }
+
+
+    @Override
+    public void initViews(Bundle savedInstanceState) {
+        recyclerView = (RecyclerView) findViewById(R.id.activity_spaces_list_recyclerview);
+        progressBar = (ProgressBar) findViewById(R.id.activity_spaces_list_progressbar);
+        retryButton = (Button) findViewById(R.id.activity_spaces_list_retryBtn);
+        linearLayout = (LinearLayout) findViewById(R.id.activity_spaces_list_progress_layout);
+
     }
 
     @Override
@@ -65,10 +99,14 @@ public class SpacesActivity extends BaseActivity {
         super.onResume();
         RealmResults<Space> spaces = DataManager.getAllSpaces(getRealm());
 
+        if (spaces.size() != 0) {
+            linearLayout.setVisibility(View.GONE);
+        }
+
         recyclerView.setLayoutManager(new LinearLayoutManager(SpacesActivity.this));
 
-        l("We have: "+spaces.size()+" spaces");
         recyclerView.setAdapter(new SpacesRecyclerViewAdapter(SpacesActivity.this, spaces, new ItemInteractionListener<Space>() {
+
             @Override
             public void onItemClick(View v, Space item) {
                 Context context = v.getContext();
@@ -81,13 +119,10 @@ public class SpacesActivity extends BaseActivity {
             public void onItemLongClick(View v, Space item) {
 
             }
+
         }));
     }
 
-    @Override
-    public void initViews(Bundle savedInstanceState) {
-
-    }
 
     @Override
     public void notFoundError() {

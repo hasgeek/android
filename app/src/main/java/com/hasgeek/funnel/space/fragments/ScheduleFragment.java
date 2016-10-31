@@ -3,13 +3,16 @@ package com.hasgeek.funnel.space.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.hasgeek.funnel.data.DeviceController;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.R;
@@ -69,28 +72,41 @@ public class ScheduleFragment extends BaseFragment {
             if (TimeUtils.getCalendarFromISODateString(s.getStart()).get(Calendar.DAY_OF_YEAR) == sessionDayOfYear)
                 sessions.add(s);
         }
-        l("We have: "+sessions.size()+" items");
+        l("We have: "+sessions.size()+" sessions");
 
+        int trackWidth = (int) (DeviceController.getDeviceWidth() * 0.80);
 
         int width = 0;
         int height = 0;
         for (final Session s: sessions) {
-            l(s.toString());
             LinearLayout linearLayout = getScheduleViewForSession(inflater, relativeLayout, s);
-            if (width < (s.getMarginLeft() + s.getWidth()))
-                width = s.getMarginLeft() + s.getWidth();
+
+            int mul;
+            if (s.getRoom() == null) {
+                mul = 0;
+            } else if (s.getRoom().contains("audi")) {
+                mul = 0;
+            } else {
+                mul = 1;
+            }
+
+            int sessionWidth = trackWidth;
+            int marginLeft = sessionWidth * mul;
+
+            if (width < (marginLeft + sessionWidth))
+                width = marginLeft + sessionWidth;
             if (height < (s.getMarginTop() + s.getHeight()))
                 height = s.getMarginTop() + s.getHeight();
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(s.getWidth(), s.getHeight());
-            params.leftMargin = s.getMarginLeft();
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(sessionWidth, s.getHeight());
+            params.leftMargin = marginLeft;
             params.topMargin = s.getMarginTop();
             relativeLayout.addView(linearLayout, params);
 
         }
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(relativeLayout.getLayoutParams());
-        layoutParams.height = height;
-        layoutParams.width = width + 5;
+        layoutParams.height = height + 200;
+        layoutParams.width = width;
 
         ViewGroup parent = (ViewGroup)relativeLayout.getParent();
         if (parent!=null){

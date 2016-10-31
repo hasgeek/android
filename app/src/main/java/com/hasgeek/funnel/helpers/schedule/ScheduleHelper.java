@@ -1,10 +1,12 @@
 package com.hasgeek.funnel.helpers.schedule;
 
+import android.content.Context;
+import android.util.Log;
+
+import com.hasgeek.funnel.data.DeviceController;
 import com.hasgeek.funnel.helpers.utils.TimeUtils;
 import com.hasgeek.funnel.model.Session;
-import com.hasgeek.funnel.space.fragments.ScheduleFragment;
 
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,9 +41,10 @@ public class ScheduleHelper {
 
     public static void addDimensToSessions(List<Session> sessions) throws ParseException {
 
-        int TRACK_WIDTH = 800;
-        int MIN_SESSION_HEIGHT = 350;
-        int SEGMENT_HEIGHT = 10;
+
+        Log.i("ScheduleHelper", "Device Density -> "+ DeviceController.getDeviceScaledDensity());
+        int MIN_SESSION_HEIGHT = (int) (150 * DeviceController.getDeviceScaledDensity());
+        int SEGMENT_HEIGHT = (int) (5 * DeviceController.getDeviceScaledDensity());
         int maxHeight = 0;
 
         Collections.sort(sessions, new Comparator<Session>() {
@@ -102,21 +105,9 @@ public class ScheduleHelper {
         for (Session s : sessions) {
             int top = masterTimeMap.get(TimeUtils.getSimpleTimeForString(s.getStart()));
             int height = masterTimeMap.get(TimeUtils.getSimpleTimeForString(s.getEnd())) - top;
-            int width = TRACK_WIDTH;
-            int mul;
-            if (s.getRoom() == null) {
-                mul = 0;
-            } else if (s.getRoom().contains("audi")) {
-                mul = 0;
-            } else {
-                mul = 1;
-            }
-            int left = TRACK_WIDTH * mul;
 
             s.setMarginTop(top);
-            s.setMarginLeft(left);
             s.setHeight(height);
-            s.setWidth(width);
         }
     }
 }

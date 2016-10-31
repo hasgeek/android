@@ -62,10 +62,6 @@ public class Session extends RealmObject{
 
     private int marginTop;
 
-    private int marginLeft;
-
-    private int width;
-
     private int height;
 
     public Boolean getBreak() {
@@ -228,29 +224,12 @@ public class Session extends RealmObject{
         this.url = url;
     }
 
-
     public int getMarginTop() {
         return marginTop;
     }
 
     public void setMarginTop(int marginTop) {
         this.marginTop = marginTop;
-    }
-
-    public int getMarginLeft() {
-        return marginLeft;
-    }
-
-    public void setMarginLeft(int marginLeft) {
-        this.marginLeft = marginLeft;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
     }
 
     public int getHeight() {

@@ -3,10 +3,7 @@ package com.hasgeek.funnel.space;
 import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -21,7 +18,6 @@ import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
-import com.hasgeek.funnel.helpers.schedule.ScheduleHelper;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.scanner.ScannerActivity;
@@ -33,12 +29,7 @@ import com.hasgeek.funnel.space.fragments.ScheduleLibraryFragment;
 import com.hasgeek.funnel.space.fragments.ScheduleFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import io.realm.Realm;
 import rx.Subscriber;
@@ -54,12 +45,16 @@ public class SpaceActivity extends BaseActivity {
 
     public int stateCurrentFragmentId;
 
-    public Space space;
+    public Space space_Cold;
 
 
     Toolbar toolbar;
     AHBottomNavigation bottomNavigation;
     FloatingActionButton fab;
+
+    OverviewFragment overviewFragment;
+    ScheduleContainerFragment scheduleContainerFragment;
+    ContactExchangeFragment contactExchangeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,21 +65,21 @@ public class SpaceActivity extends BaseActivity {
         Intent intent = getIntent();
         final String spaceId = intent.getStringExtra(EXTRA_SPACE_ID);
 
-        space = SpaceController.getSpaceById_Cold(getRealm(), spaceId);
+        space_Cold = SpaceController.getSpaceById_Cold(getRealm(), spaceId);
 
-        if(space==null) {
+        if(space_Cold ==null) {
             notFoundError();
         }
 
-        APIController.getService().getSessions(space.getId())
+        APIController.getService().getSessions(space_Cold.getId())
                 .doOnNext(new Action1<List<Session>>() {
                     @Override
                     public void call(List<Session> sessions) {
                         Realm realm = Realm.getDefaultInstance();
-                        SessionController.deleteSessionsBySpaceId(realm, space.getId());
+                        SessionController.deleteSessionsBySpaceId(realm, space_Cold.getId());
                         SessionController.saveSessions(realm, sessions);
                         realm.close();
-                        l("Saved sessions for space");
+                        l("Saved sessions for space_Cold");
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -116,6 +111,9 @@ public class SpaceActivity extends BaseActivity {
 
         toolbar = (Toolbar) findViewById(R.id.spaces_list_toolbar);
         setSupportActionBar(toolbar);
+
+        getSupportActionBar().setTitle(space_Cold.getTitle());
+        getSupportActionBar().setSubtitle(space_Cold.getDatelocation());
 
         bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
 
@@ -159,6 +157,14 @@ public class SpaceActivity extends BaseActivity {
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
+
+        overviewFragment = OverviewFragment.newInstance(space_Cold.getId());
+
+        scheduleContainerFragment = ScheduleContainerFragment.newInstance(space_Cold.getId());
+
+        contactExchangeFragment = ContactExchangeFragment.newInstance(space_Cold.getId());
+
+
         if (savedInstanceState != null )
             stateCurrentFragmentId = savedInstanceState.getInt(STATE_FRAGMENT_ID, OverviewFragment.FRAGMENT_ID);
         else
@@ -188,11 +194,23 @@ public class SpaceActivity extends BaseActivity {
 
     void switchToOverview() {
 
-        getSupportActionBar().setTitle("Overview");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 //        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        fragmentTransaction.replace(R.id.activity_space_fragment_frame, OverviewFragment.newInstance(space.getId()));
+
+
+        if (overviewFragment.isAdded()) {
+            fragmentTransaction.show(overviewFragment);
+        } else {
+            fragmentTransaction.add(R.id.activity_space_fragment_frame, overviewFragment);
+        }
+
+        if (scheduleContainerFragment.isAdded())
+            fragmentTransaction.hide(scheduleContainerFragment);
+
+        if (contactExchangeFragment.isAdded())
+            fragmentTransaction.hide(contactExchangeFragment);
+
         fragmentTransaction.commit();
 
         stateCurrentFragmentId = OverviewFragment.FRAGMENT_ID;
@@ -203,11 +221,23 @@ public class SpaceActivity extends BaseActivity {
 
     void switchToSchedule() {
 
-        getSupportActionBar().setTitle("Schedule");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 //        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ScheduleContainerFragment.newInstance(space.getId()));
+
+        if (scheduleContainerFragment.isAdded()) {
+            fragmentTransaction.show(scheduleContainerFragment);
+        } else {
+            fragmentTransaction.add(R.id.activity_space_fragment_frame, scheduleContainerFragment);
+        }
+
+        if (overviewFragment.isAdded())
+            fragmentTransaction.hide(overviewFragment);
+
+        if (contactExchangeFragment.isAdded())
+            fragmentTransaction.hide(contactExchangeFragment);
+
+
         fragmentTransaction.commit();
 
 
@@ -219,11 +249,23 @@ public class SpaceActivity extends BaseActivity {
 
     void switchToContacts() {
 
-        getSupportActionBar().setTitle("Contacts");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 //        fragmentTransaction.setCustomAnimations(android.R.anim., android.R.anim.slide_out_right);
-        fragmentTransaction.replace(R.id.activity_space_fragment_frame, ContactExchangeFragment.newInstance(space.getId()));
+
+        if (contactExchangeFragment.isAdded()) {
+            fragmentTransaction.show(contactExchangeFragment);
+        } else {
+            fragmentTransaction.add(R.id.activity_space_fragment_frame, contactExchangeFragment);
+        }
+
+        if (overviewFragment.isAdded())
+            fragmentTransaction.hide(overviewFragment);
+
+        if (scheduleContainerFragment.isAdded())
+            fragmentTransaction.hide(scheduleContainerFragment);
+
+
         fragmentTransaction.commit();
 
         stateCurrentFragmentId = ScheduleFragment.FRAGMENT_ID;
