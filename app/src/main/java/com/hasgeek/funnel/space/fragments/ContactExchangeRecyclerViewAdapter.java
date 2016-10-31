@@ -14,7 +14,7 @@ import com.hasgeek.funnel.space.SpaceActivity;
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter<Attendee, ContactExchangeRecyclerViewAdapter.SpaceViewHolder> {
+public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter<Attendee, ContactExchangeRecyclerViewAdapter.AttendeeViewHolder> {
 
     private final ItemInteractionListener mListener;
     private final SpaceActivity activity;
@@ -27,16 +27,20 @@ public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter
     }
 
     @Override
-    public SpaceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AttendeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_singleday, parent, false);
-        return new SpaceViewHolder(view);
+                .inflate(R.layout.fragment_contact_exchange_item, parent, false);
+        return new AttendeeViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final SpaceViewHolder holder, int position) {
-        holder.mItem = getData().get(position);
-        holder.mIdView.setText(getData().get(position).getFullname());
+    public void onBindViewHolder(final AttendeeViewHolder holder, int position) {
+
+        Attendee a = getData().get(position);
+
+        holder.mItem = a;
+        holder.fullname.setText(a.getFullname());
+        holder.company.setText(a.getCompany());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,15 +54,17 @@ public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter
         });
     }
 
-    public class SpaceViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
+    public class AttendeeViewHolder extends RecyclerView.ViewHolder {
+        public View mView;
+        public TextView fullname;
+        public TextView company;
         public Attendee mItem;
 
-        public SpaceViewHolder(View view) {
+        public AttendeeViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
+            fullname = (TextView) view.findViewById(R.id.fragment_contact_exchange_item_fullname);
+            company = (TextView) view.findViewById(R.id.fragment_contact_exchange_item_company);
         }
     }
 }

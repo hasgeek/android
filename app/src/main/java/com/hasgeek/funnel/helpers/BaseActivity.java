@@ -56,7 +56,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         Log.i(this.getClass().getSimpleName(), msg+" ");
     }
 
+    public abstract void initViews(Bundle savedInstanceState);
+
     public abstract void notFoundError();
 
-    public abstract void initViews(Bundle savedInstanceState);
 }

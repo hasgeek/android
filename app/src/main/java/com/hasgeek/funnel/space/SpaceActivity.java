@@ -2,6 +2,7 @@ package com.hasgeek.funnel.space;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -12,12 +13,15 @@ import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.hasgeek.funnel.data.AuthController;
+import com.hasgeek.funnel.data.ContactExchangeController;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
+import com.hasgeek.funnel.model.Attendee;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.scanner.ScannerActivity;
@@ -71,17 +75,7 @@ public class SpaceActivity extends BaseActivity {
             notFoundError();
         }
 
-        APIController.getService().getSessions(space_Cold.getId())
-                .doOnNext(new Action1<List<Session>>() {
-                    @Override
-                    public void call(List<Session> sessions) {
-                        Realm realm = Realm.getDefaultInstance();
-                        SessionController.deleteSessionsBySpaceId(realm, space_Cold.getId());
-                        SessionController.saveSessions(realm, sessions);
-                        realm.close();
-                        l("Saved sessions for space_Cold");
-                    }
-                })
+        APIController.getService().getSessionsBySpaceId(space_Cold.getId())
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -98,7 +92,37 @@ public class SpaceActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Session> sessions) {
-                        Toast.makeText(getApplicationContext(), "Updated data: " + sessions.size() + " sessions.", Toast.LENGTH_SHORT).show();
+                        Realm realm = Realm.getDefaultInstance();
+                        SessionController.deleteSessionsBySpaceId(realm, space_Cold.getId());
+                        SessionController.saveSessions(realm, sessions);
+                        realm.close();
+                        l("Saved "+sessions.size()+" sessions for "+space_Cold.getTitle());
+                    }
+                });
+
+
+        APIController.getService().getAttendeesBySpaceId(space_Cold.getId())
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<Attendee>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(List<Attendee> attendeeList) {
+                        Realm realm = Realm.getDefaultInstance();
+                        ContactExchangeController.deleteAttendeesBySpaceId(realm, space_Cold.getId());
+                        ContactExchangeController.saveAttendees(realm, attendeeList);
+                        realm.close();
+                        l("Saved "+attendeeList.size()+" attendees for "+space_Cold.getTitle());
                     }
                 });
 
@@ -108,6 +132,13 @@ public class SpaceActivity extends BaseActivity {
 
     @Override
     public void initViews(Bundle savedInstanceState) {
+
+        if (AuthController.isLoggedIn()!=true) {
+            String url = "http://auth.hasgeek.com/auth?client_id=eDnmYKApSSOCXonBXtyoDQ&scope=id+email+phone+organizations+teams+com.talkfunnel:*&response_type=token";
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            startActivity(i);
+        }
 
         toolbar = (Toolbar) findViewById(R.id.spaces_list_toolbar);
         setSupportActionBar(toolbar);
@@ -344,6 +375,25 @@ public class SpaceActivity extends BaseActivity {
         }
     };
 
+
+    ContactExchangeFragment.ContactExchangeFragmentListener contactExchangeFragmentListener = new ContactExchangeFragment.ContactExchangeFragmentListener() {
+        @Override
+        public void onAttendeeClick(Attendee a) {
+
+        }
+
+        @Override
+        public void onScanBadgeClick(View view) {
+
+        }
+
+        @Override
+        public void onAttendeeLongClick(Attendee s) {
+
+        }
+    };
+
+
     public OverviewFragment.OverviewFragmentInteractionListener getOverviewFragmentInteractionListener() {
         return overviewFragmentInteractionListener;
     }
@@ -352,4 +402,7 @@ public class SpaceActivity extends BaseActivity {
         return sessionItemInteractionListener;
     }
 
+    public ContactExchangeFragment.ContactExchangeFragmentListener getContactExchangeFragmentListener() {
+        return contactExchangeFragmentListener;
+    }
 }

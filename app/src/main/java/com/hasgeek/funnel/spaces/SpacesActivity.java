@@ -23,6 +23,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmModel;
 import io.realm.RealmResults;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -101,6 +102,8 @@ public class SpacesActivity extends BaseActivity {
 
         if (spaces.size() != 0) {
             linearLayout.setVisibility(View.GONE);
+            //goToDroidcon();
+
         }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(SpacesActivity.this));
@@ -109,10 +112,7 @@ public class SpacesActivity extends BaseActivity {
 
             @Override
             public void onItemClick(View v, Space item) {
-                Context context = v.getContext();
-                Intent intent = new Intent(context, SpaceActivity.class);
-                intent.putExtra(SpaceActivity.EXTRA_SPACE_ID, item.getId());
-                context.startActivity(intent);
+                goToSpace(item);
             }
 
             @Override
@@ -123,6 +123,22 @@ public class SpacesActivity extends BaseActivity {
         }));
     }
 
+    void goToSpace(Space space) {
+        Context context = SpacesActivity.this;
+        Intent intent = new Intent(context, SpaceActivity.class);
+        intent.putExtra(SpaceActivity.EXTRA_SPACE_ID, space.getId());
+        context.startActivity(intent);
+    }
+
+    void goToDroidcon() {
+
+        Space droidcon = SpaceController.getSpaceById_Hot(getRealm(), "84");
+        if (droidcon != null) {
+            goToSpace(droidcon);
+            finish();
+        }
+
+    }
 
     @Override
     public void notFoundError() {

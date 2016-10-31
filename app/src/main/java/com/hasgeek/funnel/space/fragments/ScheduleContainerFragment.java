@@ -41,6 +41,7 @@ public class ScheduleContainerFragment extends BaseFragment {
     public static final String EXTRA_SPACE_ID = "extra_space_id";
     public static final int FRAGMENT_ID = 9;
     private String spaceId;
+
     public ScheduleContainerFragment() {
     }
 
@@ -58,7 +59,7 @@ public class ScheduleContainerFragment extends BaseFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof SpaceActivity) {
-            SpaceActivity spaceActivity = (SpaceActivity)getActivity();
+            SpaceActivity spaceActivity = (SpaceActivity) getActivity();
             spaceId = getArguments().getString(EXTRA_SPACE_ID, null);
         }
     }
@@ -71,7 +72,7 @@ public class ScheduleContainerFragment extends BaseFragment {
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
 
-        List<Session> sessions = SessionController.getSessionsBySpaceId(Realm.getDefaultInstance(),spaceId);
+        List<Session> sessions = SessionController.getSessionsBySpaceId(Realm.getDefaultInstance(), spaceId);
         HashMap<Integer, List<Session>> hashMap = ScheduleHelper.getDayOfYearMapFromSessions(sessions);
 
         List<Integer> days = new ArrayList<>(hashMap.keySet());
@@ -87,7 +88,7 @@ public class ScheduleContainerFragment extends BaseFragment {
 
         SessionPagerAdapter sessionPagerAdapter = new SessionPagerAdapter(getChildFragmentManager());
 
-        for (int i: days) {
+        for (int i : days) {
             Calendar x = Calendar.getInstance();
             x.set(Calendar.DAY_OF_YEAR, i);
             sessionPagerAdapter.addFragment(ScheduleFragment.newInstance(spaceId, i), TimeUtils.getDayOfWeekFromCalendar(x));

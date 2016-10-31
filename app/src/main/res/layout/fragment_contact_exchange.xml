@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="10dp">
 
-    <TextView
-        android:id="@+id/placeholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Placeholder"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_contact_exchange_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 
 </LinearLayout>

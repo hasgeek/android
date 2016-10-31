@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
+import com.hasgeek.funnel.data.ContactExchangeController;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseFragment;
@@ -49,6 +50,7 @@ public class ContactExchangeFragment extends BaseFragment {
         super.onAttach(context);
         if (context instanceof SpaceActivity) {
             SpaceActivity spaceActivity = (SpaceActivity)getActivity();
+            contactExchangeFragmentListener = spaceActivity.getContactExchangeFragmentListener();
             spaceId = getArguments().getString(EXTRA_SPACE_ID, null);
         }
     }
@@ -58,10 +60,24 @@ public class ContactExchangeFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_exchange, container, false);
         Realm realm = Realm.getDefaultInstance();
-        Space s = SpaceController.getSpaceById_Cold(realm, spaceId);
-        TextView textView = (TextView) view.findViewById(R.id.placeholder);
+        Space space = SpaceController.getSpaceById_Cold(realm, spaceId);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_contact_exchange_recyclerview);
+        RealmResults<Attendee> attendees = ContactExchangeController.getAttendeesBySpaceId_Hot(realm, space.getId());
 
-        textView.setText("Placeholder for attendee list for "+s.getTitle());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        recyclerView.setAdapter(new ContactExchangeRecyclerViewAdapter((SpaceActivity)getActivity(), attendees, new ItemInteractionListener<Attendee>() {
+            @Override
+            public void onItemClick(View v, Attendee item) {
+                contactExchangeFragmentListener.onAttendeeClick(item);
+            }
+
+            @Override
+            public void onItemLongClick(View v, Attendee item) {
+                contactExchangeFragmentListener.onAttendeeLongClick(item);
+            }
+        }));
+
 
         return view;
     }

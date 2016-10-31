@@ -19,6 +19,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".auth.LoginActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="talkfunnel"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".space.SpaceActivity" />
         <activity android:name=".session.SessionActivity" />
         <activity

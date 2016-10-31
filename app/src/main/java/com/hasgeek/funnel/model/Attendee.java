@@ -4,20 +4,32 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by karthikbalakrishnan on 30/03/15.
  */
 public class Attendee extends RealmObject {
 
-    @Expose
-    private String company;
-    @Expose
-    private String fullname;
-
+    @PrimaryKey
     @SerializedName("_id")
     @Expose
     private String userId;
+
+    @Expose
+    private String company;
+
+    @Expose
+    private String fullname;
+
+    @Expose
+    private String email;
+
+    @Expose
+    private String phone;
+
+    @Expose
+    private String twitter;
 
     @SerializedName("puk")
     @Expose
@@ -30,9 +42,17 @@ public class Attendee extends RealmObject {
     @Expose
     private String key;
 
-    @SerializedName("space_id")
-    @Expose
-    private String spaceId;
+    private Space space;
+
+    private boolean isSynced;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public String getCompany() {
         return company;
@@ -50,12 +70,28 @@ public class Attendee extends RealmObject {
         this.fullname = fullname;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getTwitter() {
+        return twitter;
+    }
+
+    public void setTwitter(String twitter) {
+        this.twitter = twitter;
     }
 
     public String getPuk() {
@@ -82,11 +118,19 @@ public class Attendee extends RealmObject {
         this.key = key;
     }
 
-    public String getSpaceId() {
-        return spaceId;
+    public Space getSpace() {
+        return space;
     }
 
-    public void setSpaceId(String spaceId) {
-        this.spaceId = spaceId;
+    public void setSpace(Space space) {
+        this.space = space;
+    }
+
+    public boolean isSynced() {
+        return isSynced;
+    }
+
+    public void setSynced(boolean synced) {
+        isSynced = synced;
     }
 }
