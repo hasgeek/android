@@ -14,7 +14,7 @@ public class Attendee extends RealmObject {
     @PrimaryKey
     @SerializedName("_id")
     @Expose
-    private String userId;
+    private String id;
 
     @Expose
     private String company;
@@ -22,36 +22,22 @@ public class Attendee extends RealmObject {
     @Expose
     private String fullname;
 
+    @SerializedName("job_title")
     @Expose
-    private String email;
-
-    @Expose
-    private String phone;
-
-    @Expose
-    private String twitter;
+    private String jobTitle;
 
     @SerializedName("puk")
     @Expose
     private String puk;
 
-    @SerializedName("job_title")
-    @Expose
-    private String jobTitle;
-
-    @Expose
-    private String key;
-
     private Space space;
 
-    private boolean isSynced;
-
-    public String getUserId() {
-        return userId;
+    public String getId() {
+        return id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getCompany() {
@@ -70,30 +56,6 @@ public class Attendee extends RealmObject {
         this.fullname = fullname;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getTwitter() {
-        return twitter;
-    }
-
-    public void setTwitter(String twitter) {
-        this.twitter = twitter;
-    }
-
     public String getPuk() {
         return puk;
     }
@@ -110,14 +72,6 @@ public class Attendee extends RealmObject {
         this.jobTitle = jobTitle;
     }
 
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public Space getSpace() {
         return space;
     }
@@ -126,11 +80,4 @@ public class Attendee extends RealmObject {
         this.space = space;
     }
 
-    public boolean isSynced() {
-        return isSynced;
-    }
-
-    public void setSynced(boolean synced) {
-        isSynced = synced;
-    }
 }

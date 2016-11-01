@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -22,6 +24,7 @@ import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Attendee;
+import com.hasgeek.funnel.model.ContactExchangeContact;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.scanner.ScannerActivity;
@@ -38,7 +41,6 @@ import java.util.List;
 import io.realm.Realm;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class SpaceActivity extends BaseActivity {
@@ -51,6 +53,7 @@ public class SpaceActivity extends BaseActivity {
 
     public Space space_Cold;
 
+    public boolean currentLoggedIn;
 
     Toolbar toolbar;
     AHBottomNavigation bottomNavigation;
@@ -75,6 +78,17 @@ public class SpaceActivity extends BaseActivity {
             notFoundError();
         }
 
+        if (AuthController.isLoggedIn()) {
+            currentLoggedIn = true;
+            fetchAttendees();
+        }
+
+        fetchSessions();
+
+        initViews(savedInstanceState);
+    }
+
+    void fetchSessions() {
         APIController.getService().getSessionsBySpaceId(space_Cold.getId())
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
@@ -82,7 +96,6 @@ public class SpaceActivity extends BaseActivity {
                 .subscribe(new Subscriber<List<Session>>() {
                     @Override
                     public void onCompleted() {
-
                     }
 
                     @Override
@@ -99,8 +112,9 @@ public class SpaceActivity extends BaseActivity {
                         l("Saved "+sessions.size()+" sessions for "+space_Cold.getTitle());
                     }
                 });
+    }
 
-
+    void fetchAttendees() {
         APIController.getService().getAttendeesBySpaceId(space_Cold.getId())
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
@@ -125,20 +139,26 @@ public class SpaceActivity extends BaseActivity {
                         l("Saved "+attendeeList.size()+" attendees for "+space_Cold.getTitle());
                     }
                 });
-
-        initViews(savedInstanceState);
     }
 
+    @Override
+    protected void onResume() {
+        if (!currentLoggedIn && AuthController.isLoggedIn()) {
+            fetchAttendees();
+            currentLoggedIn = true;
+        }
+        super.onResume();
+    }
 
     @Override
     public void initViews(Bundle savedInstanceState) {
 
-        if (AuthController.isLoggedIn()!=true) {
-            String url = "http://auth.hasgeek.com/auth?client_id=eDnmYKApSSOCXonBXtyoDQ&scope=id+email+phone+organizations+teams+com.talkfunnel:*&response_type=token";
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse(url));
-            startActivity(i);
-        }
+//        if (AuthController.isLoggedIn()!=true) {
+//            String url = "http://auth.hasgeek.com/auth?client_id=eDnmYKApSSOCXonBXtyoDQ&scope=id+email+phone+organizations+teams+com.talkfunnel:*&response_type=token";
+//            Intent i = new Intent(Intent.ACTION_VIEW);
+//            i.setData(Uri.parse(url));
+//            startActivity(i);
+//        }
 
         toolbar = (Toolbar) findViewById(R.id.spaces_list_toolbar);
         setSupportActionBar(toolbar);
@@ -250,6 +270,33 @@ public class SpaceActivity extends BaseActivity {
         fab.setVisibility(View.GONE);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.space_activity_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (!AuthController.isLoggedIn()) {
+            MenuItem menuItem = menu.findItem(R.id.contact_exchange_menu_logout);
+            menuItem.setVisible(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.contact_exchange_menu_logout:
+                AuthController.deleteAuthToken();
+                currentLoggedIn = false;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     void switchToSchedule() {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -317,19 +364,24 @@ public class SpaceActivity extends BaseActivity {
         if(view == null)
             view = getCurrentFocus();
 
-        Intent intent = new Intent(view.getContext(), ScannerActivity.class);
-        view.getContext().startActivity(intent);
+        if (AuthController.isLoggedIn()) {
+            Intent intent = new Intent(view.getContext(), ScannerActivity.class);
+            intent.putExtra(ScannerActivity.EXTRA_SPACE_ID, space_Cold.getId());
+            view.getContext().startActivity(intent);
+        }
 
-//        Snackbar.make(view, "Hang on, who are you?", Snackbar.LENGTH_LONG)
-//                .setAction("Login", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        String url = "http://auth.hasgeek.com/auth?client_id=eDnmYKApSSOCXonBXtyoDQ&scope=id+email+phone+organizations+teams+com.talkfunnel:*&response_type=token";
-//                        Intent i = new Intent(Intent.ACTION_VIEW);
-//                        i.setData(Uri.parse(url));
-//                        startActivity(i);
-//                    }
-//                }).show();
+        else {
+            Snackbar.make(view, "Hang on, we need to know who you are", Snackbar.LENGTH_LONG)
+                    .setAction("Login", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            String url = "http://auth.hasgeek.com/auth?client_id=eDnmYKApSSOCXonBXtyoDQ&scope=id+email+phone+organizations+teams+com.talkfunnel:*&response_type=token";
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(Uri.parse(url));
+                            startActivity(i);
+                        }
+                    }).show();
+        }
 
     }
 
@@ -378,7 +430,7 @@ public class SpaceActivity extends BaseActivity {
 
     ContactExchangeFragment.ContactExchangeFragmentListener contactExchangeFragmentListener = new ContactExchangeFragment.ContactExchangeFragmentListener() {
         @Override
-        public void onAttendeeClick(Attendee a) {
+        public void onContactExchangeContactClick(ContactExchangeContact contactExchangeContact) {
 
         }
 
@@ -388,7 +440,7 @@ public class SpaceActivity extends BaseActivity {
         }
 
         @Override
-        public void onAttendeeLongClick(Attendee s) {
+        public void onContactExchangeContactLongClick(ContactExchangeContact contactExchangeContact) {
 
         }
     };

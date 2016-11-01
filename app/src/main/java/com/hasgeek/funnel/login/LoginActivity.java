@@ -1,4 +1,4 @@
-package com.hasgeek.funnel.auth;
+package com.hasgeek.funnel.login;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -10,8 +10,6 @@ import com.hasgeek.funnel.data.AuthController;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.model.wrapper.AuthWrapper;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;

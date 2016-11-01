@@ -2,21 +2,24 @@ package com.hasgeek.funnel.space.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
+import com.hasgeek.funnel.data.AuthController;
 import com.hasgeek.funnel.data.ContactExchangeController;
-import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
-import com.hasgeek.funnel.model.Attendee;
-import com.hasgeek.funnel.model.Session;
+import com.hasgeek.funnel.model.ContactExchangeContact;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
 
@@ -46,6 +49,12 @@ public class ContactExchangeFragment extends BaseFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof SpaceActivity) {
@@ -62,24 +71,30 @@ public class ContactExchangeFragment extends BaseFragment {
         Realm realm = Realm.getDefaultInstance();
         Space space = SpaceController.getSpaceById_Cold(realm, spaceId);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_contact_exchange_recyclerview);
-        RealmResults<Attendee> attendees = ContactExchangeController.getAttendeesBySpaceId_Hot(realm, space.getId());
+        RealmResults<ContactExchangeContact> contactExchangeContacts = ContactExchangeController.getContactExchangeContactsBySpaceId_Hot(realm, space.getId());
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        recyclerView.setAdapter(new ContactExchangeRecyclerViewAdapter((SpaceActivity)getActivity(), attendees, new ItemInteractionListener<Attendee>() {
+        recyclerView.setAdapter(new ContactExchangeRecyclerViewAdapter((SpaceActivity)getActivity(), contactExchangeContacts, new ItemInteractionListener<ContactExchangeContact>() {
             @Override
-            public void onItemClick(View v, Attendee item) {
-                contactExchangeFragmentListener.onAttendeeClick(item);
+            public void onItemClick(View v, ContactExchangeContact item) {
+                contactExchangeFragmentListener.onContactExchangeContactClick(item);
             }
 
             @Override
-            public void onItemLongClick(View v, Attendee item) {
-                contactExchangeFragmentListener.onAttendeeLongClick(item);
+            public void onItemLongClick(View v, ContactExchangeContact item) {
+                contactExchangeFragmentListener.onContactExchangeContactLongClick(item);
             }
         }));
 
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.contact_exchange_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -94,8 +109,8 @@ public class ContactExchangeFragment extends BaseFragment {
     }
 
     public interface ContactExchangeFragmentListener {
-        void onAttendeeClick(Attendee a);
+        void onContactExchangeContactClick(ContactExchangeContact contactExchangeContact);
         void onScanBadgeClick(View view);
-        void onAttendeeLongClick(Attendee s);
+        void onContactExchangeContactLongClick(ContactExchangeContact contactExchangeContact);
     }
 }

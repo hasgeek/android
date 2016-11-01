@@ -23,4 +23,8 @@ public class AuthController {
         return SharedPreferenceController.getSharedPref(AUTH_TOKEN_KEY);
     }
 
+    public static void deleteAuthToken() {
+        SharedPreferenceController.deleteSharedPref(AUTH_TOKEN_KEY);
+    }
+
 }

@@ -8,35 +8,35 @@ import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
-import com.hasgeek.funnel.model.Attendee;
+import com.hasgeek.funnel.model.ContactExchangeContact;
 import com.hasgeek.funnel.space.SpaceActivity;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter<Attendee, ContactExchangeRecyclerViewAdapter.AttendeeViewHolder> {
+public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter<ContactExchangeContact, ContactExchangeRecyclerViewAdapter.ContactExchangeViewHolder> {
 
     private final ItemInteractionListener mListener;
     private final SpaceActivity activity;
 
 
-    public ContactExchangeRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<Attendee> data, ItemInteractionListener<Attendee> listener) {
+    public ContactExchangeRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<ContactExchangeContact> data, ItemInteractionListener<ContactExchangeContact> listener) {
         super(activity, data, true);
         this.activity = activity;
         mListener = listener;
     }
 
     @Override
-    public AttendeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ContactExchangeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_contact_exchange_item, parent, false);
-        return new AttendeeViewHolder(view);
+        return new ContactExchangeViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final AttendeeViewHolder holder, int position) {
+    public void onBindViewHolder(final ContactExchangeViewHolder holder, int position) {
 
-        Attendee a = getData().get(position);
+        ContactExchangeContact a = getData().get(position);
 
         holder.mItem = a;
         holder.fullname.setText(a.getFullname());
@@ -54,13 +54,13 @@ public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter
         });
     }
 
-    public class AttendeeViewHolder extends RecyclerView.ViewHolder {
+    public class ContactExchangeViewHolder extends RecyclerView.ViewHolder {
         public View mView;
         public TextView fullname;
         public TextView company;
-        public Attendee mItem;
+        public ContactExchangeContact mItem;
 
-        public AttendeeViewHolder(View view) {
+        public ContactExchangeViewHolder(View view) {
             super(view);
             mView = view;
             fullname = (TextView) view.findViewById(R.id.fragment_contact_exchange_item_fullname);
