@@ -42,6 +42,8 @@ public class SpacesActivity extends BaseActivity {
     private Button retryButton;
     private LinearLayout linearLayout;
 
+    private boolean skip = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +83,8 @@ public class SpacesActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Space> spaces) {
                         linearLayout.setVisibility(View.GONE);
+                        if (!skip)
+                            goToDroidcon();
                     }
                 });
     }
@@ -91,7 +95,17 @@ public class SpacesActivity extends BaseActivity {
         recyclerView = (RecyclerView) findViewById(R.id.activity_spaces_list_recyclerview);
         progressBar = (ProgressBar) findViewById(R.id.activity_spaces_list_progressbar);
         retryButton = (Button) findViewById(R.id.activity_spaces_list_retryBtn);
+        retryButton.setVisibility(View.GONE);
         linearLayout = (LinearLayout) findViewById(R.id.activity_spaces_list_progress_layout);
+
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fetchSpaces();
+                progressBar.setVisibility(View.VISIBLE);
+                retryButton.setVisibility(View.GONE);
+            }
+        });
 
     }
 
@@ -102,7 +116,7 @@ public class SpacesActivity extends BaseActivity {
 
         if (spaces.size() != 0) {
             linearLayout.setVisibility(View.GONE);
-            //goToDroidcon();
+            goToDroidcon();
 
         }
 
@@ -134,6 +148,7 @@ public class SpacesActivity extends BaseActivity {
 
         Space droidcon = SpaceController.getSpaceById_Hot(getRealm(), "84");
         if (droidcon != null) {
+            skip = true;
             goToSpace(droidcon);
             finish();
         }
