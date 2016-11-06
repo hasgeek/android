@@ -31,7 +31,6 @@ public class ScheduleFragment extends BaseFragment {
 
     private static final String EXTRA_SPACE_ID = "extra_space_id";
     private static final String EXTRA_SESSION_DAY_OF_YEAR = "extra_day_of_year";
-    public static final int FRAGMENT_ID = 3;
     private String spaceId;
     private int sessionDayOfYear;
     private ItemInteractionListener<Session> sessionItemInteractionListener;
@@ -121,12 +120,13 @@ public class ScheduleFragment extends BaseFragment {
 
         LinearLayout linearLayout = (LinearLayout)inflater.inflate(R.layout.fragment_schedule_item, container, false);
 
-        LinearLayout background = (LinearLayout)linearLayout.findViewById(R.id.fragment_schedule_item_layout);
+        RelativeLayout background = (RelativeLayout) linearLayout.findViewById(R.id.fragment_schedule_item_layout);
 
         TextView title = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_title);
         TextView speaker = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_speaker);
         TextView location = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_location);
-        TextView time = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_time);
+        TextView starttime = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_starttime);
+        TextView endtime = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_endtime);
 
         title.setText(s.getTitle());
 
@@ -168,7 +168,9 @@ public class ScheduleFragment extends BaseFragment {
 
         }
 
-        time.setText(TimeUtils.getSimpleTimeForString(s.getStart()));
+        starttime.setText(TimeUtils.getSimpleTimeForString(s.getStart()));
+
+        endtime.setText(TimeUtils.getSimpleTimeForString(s.getEnd()));
 
         return linearLayout;
 

@@ -17,12 +17,10 @@ import io.realm.RealmRecyclerViewAdapter;
 public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter<ContactExchangeContact, ContactExchangeRecyclerViewAdapter.ContactExchangeViewHolder> {
 
     private final ItemInteractionListener mListener;
-    private final SpaceActivity activity;
 
 
     public ContactExchangeRecyclerViewAdapter(SpaceActivity activity, OrderedRealmCollection<ContactExchangeContact> data, ItemInteractionListener<ContactExchangeContact> listener) {
         super(activity, data, true);
-        this.activity = activity;
         mListener = listener;
     }
 
@@ -38,18 +36,29 @@ public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter
 
         ContactExchangeContact a = getData().get(position);
 
+
         holder.mItem = a;
         holder.fullname.setText(a.getFullname());
         holder.company.setText(a.getCompany());
+        holder.jobtitle.setText(a.getJobTitle());
+
+        if (a.isSynced())
+            holder.syncState.setVisibility(View.GONE);
+        else
+            holder.syncState.setVisibility(View.VISIBLE);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onItemClick(v, holder.mItem);
-                }
+                mListener.onItemClick(v, holder.mItem);
+            }
+        });
+
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mListener.onItemLongClick(view, holder.mItem);
+                return true;
             }
         });
     }
@@ -57,14 +66,18 @@ public class ContactExchangeRecyclerViewAdapter extends RealmRecyclerViewAdapter
     public class ContactExchangeViewHolder extends RecyclerView.ViewHolder {
         public View mView;
         public TextView fullname;
+        public TextView jobtitle;
         public TextView company;
+        public View syncState;
         public ContactExchangeContact mItem;
 
         public ContactExchangeViewHolder(View view) {
             super(view);
             mView = view;
             fullname = (TextView) view.findViewById(R.id.fragment_contact_exchange_item_fullname);
+            jobtitle = (TextView) view.findViewById(R.id.fragment_contact_exchange_item_jobtitle);
             company = (TextView) view.findViewById(R.id.fragment_contact_exchange_item_company);
+            syncState = (View) view.findViewById(R.id.fragment_contact_exchange_item_syncstate);
         }
     }
 }

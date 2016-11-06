@@ -90,7 +90,8 @@
                         android:id="@+id/activity_session_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/session_objective_ipsum" />
+                        android:text="@string/session_objective_ipsum"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 </LinearLayout>
 
@@ -118,7 +119,8 @@
                         android:id="@+id/activity_session_speaker_bio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/session_description_ipsum" />
+                        android:text="@string/session_description_ipsum"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 </LinearLayout>
 

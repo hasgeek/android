@@ -8,13 +8,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
-import com.hasgeek.funnel.data.AuthController;
 import com.hasgeek.funnel.data.ContactExchangeController;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseFragment;
@@ -23,7 +20,6 @@ import com.hasgeek.funnel.model.ContactExchangeContact;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
 
-import org.w3c.dom.Text;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -31,7 +27,7 @@ import io.realm.RealmResults;
 public class ContactExchangeFragment extends BaseFragment {
 
     public static final String EXTRA_SPACE_ID = "extra_space_id";
-    public static final int FRAGMENT_ID = 1;
+    public static final String FRAGMENT_TAG = "ContactExchangeFragment";
     private ContactExchangeFragmentListener contactExchangeFragmentListener;
     private String spaceId;
     public ContactExchangeFragment() {

@@ -39,7 +39,7 @@ import io.realm.RealmResults;
 public class OverviewFragment extends BaseFragment {
 
     public static final String EXTRA_SPACE_ID = "extra_space_id";
-    public static final int FRAGMENT_ID = 1;
+    public static final String FRAGMENT_TAG = "OverviewFragment";
     private OverviewFragmentInteractionListener overviewFragmentInteractionListener;
     private String spaceId;
     public OverviewFragment() {

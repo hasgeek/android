@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.hasgeek.funnel.helpers.schedule.ScheduleHelper;
 import com.hasgeek.funnel.helpers.utils.AuthUtils;
 import com.hasgeek.funnel.model.Attendee;
+import com.hasgeek.funnel.model.ContactExchangeContact;
 import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
@@ -201,7 +202,6 @@ public class APIController {
 
                     JSONObject jsonObject = new JSONObject(response.body().string());
 
-                    Realm realm = Realm.getDefaultInstance();
                     attendeeArrayList.addAll(Arrays.asList(gson.fromJson(jsonObject.getString("participants"), Attendee[].class)));
 
                     for (Attendee attendee : attendeeArrayList) {
@@ -249,7 +249,6 @@ public class APIController {
                     subscriber.onNext(authWrapper);
                     subscriber.onCompleted();
 
-
                 } catch (Exception e) {
                     subscriber.onError(e);
                 }
@@ -257,4 +256,45 @@ public class APIController {
         });
     }
 
+    public Observable<ContactExchangeContact> syncContactExchangeContact(final ContactExchangeContact contactExchangeContact) {
+        return Observable.create(new Observable.OnSubscribe<ContactExchangeContact>() {
+            @Override
+            public void call(Subscriber<? super ContactExchangeContact> subscriber) {
+                try {
+                    Space space = contactExchangeContact.getSpace();
+                    final Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
+                        @Override
+                        public boolean shouldSkipField(FieldAttributes f) {
+                            return f.getDeclaringClass() == RealmObject.class;
+                        }
+
+                        @Override
+                        public boolean shouldSkipClass(Class<?> clazz) {
+                            return false;
+                        }
+                    }).create();
+
+                    OkHttpClient client = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            .addHeader("Authorization", AuthUtils.getAuthHeaderFromToken(AuthController.getAuthToken()))
+                            .url(space.getUrl() + "participant?"+"puk="+contactExchangeContact.getPuk()+"&key="+contactExchangeContact.getKey())
+                            .build();
+
+                    Response response = client.newCall(request).execute();
+
+
+                    JSONObject jsonObject = new JSONObject(response.body().string());
+
+                    ContactExchangeContact contact = gson.fromJson(jsonObject.getString("participant"), ContactExchangeContact.class);
+
+                    subscriber.onNext(contact);
+
+                    subscriber.onCompleted();
+
+                } catch (Exception e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
+    }
 }

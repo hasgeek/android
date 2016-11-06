@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
@@ -32,13 +33,12 @@ import com.hasgeek.funnel.session.SessionActivity;
 import com.hasgeek.funnel.space.fragments.ContactExchangeFragment;
 import com.hasgeek.funnel.space.fragments.OverviewFragment;
 import com.hasgeek.funnel.space.fragments.ScheduleContainerFragment;
-import com.hasgeek.funnel.space.fragments.ScheduleLibraryFragment;
-import com.hasgeek.funnel.space.fragments.ScheduleFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -49,7 +49,7 @@ public class SpaceActivity extends BaseActivity {
 
     public static final String STATE_FRAGMENT_ID = "state_fragment_id";
 
-    public int stateCurrentFragmentId;
+    public String stateCurrentFragmentId;
 
     public Space space_Cold;
 
@@ -81,6 +81,7 @@ public class SpaceActivity extends BaseActivity {
         if (AuthController.isLoggedIn()) {
             currentLoggedIn = true;
             fetchAttendees();
+            syncContactExchangeContacts();
         }
 
         fetchSessions();
@@ -141,10 +142,42 @@ public class SpaceActivity extends BaseActivity {
                 });
     }
 
+
+    void syncContactExchangeContacts() {
+        List<ContactExchangeContact> contactExchangeContacts = ContactExchangeController.getUnsyncedContactExchangeContactsBySpaceId_Cold(getRealm(), space_Cold.getId());
+
+        for (ContactExchangeContact c: contactExchangeContacts) {
+            APIController.getService().syncContactExchangeContact(c)
+                    .subscribeOn(Schedulers.io())
+                    .unsubscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<ContactExchangeContact>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onNext(ContactExchangeContact contactExchangeContact) {
+                            contactExchangeContact.setSpace(space_Cold);
+                            contactExchangeContact.setSynced(true);
+                            ContactExchangeController.updateContactExchangeContact(getRealm(), contactExchangeContact);
+                            l("synced");
+                        }
+                    });
+        }
+    }
+
     @Override
     protected void onResume() {
         if (!currentLoggedIn && AuthController.isLoggedIn()) {
             fetchAttendees();
+            syncContactExchangeContacts();
             currentLoggedIn = true;
         }
         super.onResume();
@@ -168,9 +201,10 @@ public class SpaceActivity extends BaseActivity {
 
         bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
 
-        AHBottomNavigationItem overviewBottomNavItem = new AHBottomNavigationItem("Overview", getResources().getDrawable(R.drawable.ic_home), getResources().getColor(R.color.colorAccent));
-        AHBottomNavigationItem scheduleBottomNavItem = new AHBottomNavigationItem("Schedule", getResources().getDrawable(R.drawable.ic_time_schedule), getResources().getColor(R.color.colorAccent));
-        AHBottomNavigationItem contactBottomNavItem = new AHBottomNavigationItem("Contacts", getResources().getDrawable(R.drawable.ic_person), getResources().getColor(R.color.colorAccent));
+        AHBottomNavigationItem overviewBottomNavItem = new AHBottomNavigationItem("Overview", R.drawable.ic_home, R.color.colorAccent);
+        AHBottomNavigationItem scheduleBottomNavItem = new AHBottomNavigationItem("Schedule", R.drawable.ic_time_schedule, R.color.colorAccent);
+        AHBottomNavigationItem contactBottomNavItem = new AHBottomNavigationItem("Contacts", R.drawable.ic_person, R.color.colorAccent);
+
 
 
         ArrayList<AHBottomNavigationItem> bottomNavigationItems = new ArrayList<>();
@@ -209,26 +243,44 @@ public class SpaceActivity extends BaseActivity {
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
 
-        overviewFragment = OverviewFragment.newInstance(space_Cold.getId());
+        if (savedInstanceState != null ) {
 
-        scheduleContainerFragment = ScheduleContainerFragment.newInstance(space_Cold.getId());
+            FragmentManager fragmentManager = getSupportFragmentManager();
 
-        contactExchangeFragment = ContactExchangeFragment.newInstance(space_Cold.getId());
+            Fragment overviewFragmentTemp = fragmentManager.getFragment(savedInstanceState, OverviewFragment.FRAGMENT_TAG);
+
+            overviewFragment = overviewFragmentTemp != null ? (OverviewFragment) overviewFragmentTemp: OverviewFragment.newInstance(space_Cold.getId());
 
 
-        if (savedInstanceState != null )
-            stateCurrentFragmentId = savedInstanceState.getInt(STATE_FRAGMENT_ID, OverviewFragment.FRAGMENT_ID);
-        else
-            stateCurrentFragmentId = OverviewFragment.FRAGMENT_ID;
+            Fragment scheduleContainerFragmentTemp = fragmentManager.getFragment(savedInstanceState, ScheduleContainerFragment.FRAGMENT_TAG);
+
+            scheduleContainerFragment = scheduleContainerFragmentTemp != null ? (ScheduleContainerFragment) scheduleContainerFragmentTemp : ScheduleContainerFragment.newInstance(space_Cold.getId());
+
+
+            Fragment contactExchangeFragmentTemp = fragmentManager.getFragment(savedInstanceState, ContactExchangeFragment.FRAGMENT_TAG);
+
+            contactExchangeFragment = contactExchangeFragmentTemp != null ? (ContactExchangeFragment) contactExchangeFragmentTemp : ContactExchangeFragment.newInstance(space_Cold.getId());
+            stateCurrentFragmentId = savedInstanceState.getString(STATE_FRAGMENT_ID, OverviewFragment.FRAGMENT_TAG);
+        }
+        else {
+
+            overviewFragment =  OverviewFragment.newInstance(space_Cold.getId());
+
+            scheduleContainerFragment = ScheduleContainerFragment.newInstance(space_Cold.getId());
+
+            contactExchangeFragment = ContactExchangeFragment.newInstance(space_Cold.getId());
+
+            stateCurrentFragmentId = OverviewFragment.FRAGMENT_TAG;
+        }
 
         switch (stateCurrentFragmentId) {
-            case OverviewFragment.FRAGMENT_ID:
+            case OverviewFragment.FRAGMENT_TAG:
                 switchToOverview();
                 break;
-            case ScheduleLibraryFragment.FRAGMENT_ID:
+            case ScheduleContainerFragment.FRAGMENT_TAG:
                 switchToSchedule();
                 break;
-            case ScheduleFragment.FRAGMENT_ID:
+            case ContactExchangeFragment.FRAGMENT_TAG:
                 switchToContacts();
                 break;
         }
@@ -238,7 +290,7 @@ public class SpaceActivity extends BaseActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
 
-        outState.putInt(STATE_FRAGMENT_ID, stateCurrentFragmentId);
+        outState.putString(STATE_FRAGMENT_ID, stateCurrentFragmentId);
 
         super.onSaveInstanceState(outState);
     }
@@ -253,7 +305,7 @@ public class SpaceActivity extends BaseActivity {
         if (overviewFragment.isAdded()) {
             fragmentTransaction.show(overviewFragment);
         } else {
-            fragmentTransaction.add(R.id.activity_space_fragment_frame, overviewFragment);
+            fragmentTransaction.add(R.id.activity_space_fragment_frame, overviewFragment, OverviewFragment.FRAGMENT_TAG);
         }
 
         if (scheduleContainerFragment.isAdded())
@@ -264,7 +316,7 @@ public class SpaceActivity extends BaseActivity {
 
         fragmentTransaction.commit();
 
-        stateCurrentFragmentId = OverviewFragment.FRAGMENT_ID;
+        stateCurrentFragmentId = OverviewFragment.FRAGMENT_TAG;
 
 
         fab.setVisibility(View.GONE);
@@ -306,7 +358,7 @@ public class SpaceActivity extends BaseActivity {
         if (scheduleContainerFragment.isAdded()) {
             fragmentTransaction.show(scheduleContainerFragment);
         } else {
-            fragmentTransaction.add(R.id.activity_space_fragment_frame, scheduleContainerFragment);
+            fragmentTransaction.add(R.id.activity_space_fragment_frame, scheduleContainerFragment, ScheduleContainerFragment.FRAGMENT_TAG);
         }
 
         if (overviewFragment.isAdded())
@@ -319,7 +371,7 @@ public class SpaceActivity extends BaseActivity {
         fragmentTransaction.commit();
 
 
-        stateCurrentFragmentId = ScheduleLibraryFragment.FRAGMENT_ID;
+        stateCurrentFragmentId = ScheduleContainerFragment.FRAGMENT_TAG;
 
         fab.setVisibility(View.GONE);
 
@@ -334,7 +386,7 @@ public class SpaceActivity extends BaseActivity {
         if (contactExchangeFragment.isAdded()) {
             fragmentTransaction.show(contactExchangeFragment);
         } else {
-            fragmentTransaction.add(R.id.activity_space_fragment_frame, contactExchangeFragment);
+            fragmentTransaction.add(R.id.activity_space_fragment_frame, contactExchangeFragment, ContactExchangeFragment.FRAGMENT_TAG);
         }
 
         if (overviewFragment.isAdded())
@@ -346,7 +398,7 @@ public class SpaceActivity extends BaseActivity {
 
         fragmentTransaction.commit();
 
-        stateCurrentFragmentId = ScheduleFragment.FRAGMENT_ID;
+        stateCurrentFragmentId = ContactExchangeFragment.FRAGMENT_TAG;
 
         fab.setVisibility(View.VISIBLE);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -431,7 +483,7 @@ public class SpaceActivity extends BaseActivity {
     ContactExchangeFragment.ContactExchangeFragmentListener contactExchangeFragmentListener = new ContactExchangeFragment.ContactExchangeFragmentListener() {
         @Override
         public void onContactExchangeContactClick(ContactExchangeContact contactExchangeContact) {
-
+            syncContactExchangeContacts();
         }
 
         @Override
@@ -441,7 +493,15 @@ public class SpaceActivity extends BaseActivity {
 
         @Override
         public void onContactExchangeContactLongClick(ContactExchangeContact contactExchangeContact) {
-
+            RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = getRealm().where(ContactExchangeContact.class)
+                    .equalTo("id", contactExchangeContact.getId())
+                    .findAll();
+            if (contactExchangeContactRealmResults.size() > 0) {
+                ContactExchangeContact c = contactExchangeContactRealmResults.first();
+                getRealm().beginTransaction();
+                c.setSynced(false);
+                getRealm().commitTransaction();
+            }
         }
     };
 

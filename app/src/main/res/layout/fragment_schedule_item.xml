@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:clickable="true">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/fragment_schedule_item_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -25,11 +25,13 @@
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:layout_height="wrap_content"
-            android:id="@+id/fragment_schedule_item_time"
-            android:textAlignment="center"
+            android:id="@+id/fragment_schedule_item_starttime"
             android:background="@android:color/background_light"
-            android:textAllCaps="true"
-            android:textSize="10sp" />
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="12sp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
 
         <TextView
             android:text="The Mutable State Monster And How To Defeat It The Mutable State Monster And How To Defeat It"
@@ -42,6 +44,7 @@
             android:id="@+id/fragment_schedule_item_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
             android:textSize="18sp"
+            android:layout_below="@id/fragment_schedule_item_starttime"
             android:textStyle="normal|bold" />
 
         <TextView
@@ -53,6 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/fragment_schedule_item_speaker"
+            android:layout_below="@id/fragment_schedule_item_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
             tools:text="Anup Cowkar, Go-Jek"
             android:textSize="14sp" />
@@ -61,15 +65,31 @@
             android:text="Main Auditorium"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingBottom="10dp"
             android:paddingTop="0dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/fragment_schedule_item_location"
+            android:layout_below="@id/fragment_schedule_item_speaker"
             tools:text="Main Auditorium"
             android:textAppearance="@style/TextAppearance.AppCompat.Inverse"
             android:textStyle="normal|bold"
             android:textAllCaps="true"
             android:textSize="12sp" />
-    </LinearLayout>
+
+
+        <TextView
+            android:text="12:00 PM"
+            android:layout_width="wrap_content"
+            android:paddingTop="0dp"
+            android:paddingBottom="2dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/fragment_schedule_item_endtime"
+            android:background="@android:color/background_light"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="12sp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 </LinearLayout>

@@ -12,7 +12,7 @@ import android.widget.Toast;
 public abstract class BaseFragment extends Fragment {
 
     public BaseFragment() {
-
+        setRetainInstance(true);
     }
 
     public void toast(String msg) {

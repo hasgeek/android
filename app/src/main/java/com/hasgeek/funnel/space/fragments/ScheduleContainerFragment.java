@@ -39,7 +39,7 @@ import io.realm.RealmResults;
 public class ScheduleContainerFragment extends BaseFragment {
 
     public static final String EXTRA_SPACE_ID = "extra_space_id";
-    public static final int FRAGMENT_ID = 9;
+    public static final String FRAGMENT_TAG = "ScheduleContainerFragment";
     private String spaceId;
 
     public ScheduleContainerFragment() {

@@ -1,28 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5sp">
+    android:layout_marginLeft="2sp"
+    android:layout_marginRight="2sp"
+    android:layout_marginTop="5sp"
+    android:layout_marginBottom="5sp">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="8">
+        android:padding="10sp">
 
-        <TextView
-            android:text="TextView"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/fragment_contact_exchange_item_fullname"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:layout_weight="8">
 
-        <TextView
-            android:text="TextView"
-            android:layout_width="match_parent"
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/fragment_contact_exchange_item_fullname"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/fragment_contact_exchange_item_jobtitle"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/fragment_contact_exchange_item_company"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fragment_contact_exchange_item_syncstate"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/fragment_contact_exchange_item_company"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
+            android:layout_weight="2"
+            android:layout_gravity="center">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:text="Waiting for sync"
+                android:gravity="center_horizontal"/>
+        </LinearLayout>
+
     </LinearLayout>
 
-</LinearLayout>
+</android.support.v7.widget.CardView>

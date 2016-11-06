@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.hasgeek.funnel.R;
+import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.data.ContactExchangeController;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseActivity;
@@ -26,11 +27,15 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import com.karumi.dexter.listener.single.SnackbarOnDeniedPermissionListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.Realm;
 import me.dm7.barcodescanner.zbar.BarcodeFormat;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Author: @karthikb351
@@ -83,6 +88,38 @@ public class ScannerActivity extends BaseActivity implements ZBarScannerView.Res
         Dexter.checkPermission(new CompositePermissionListener(permissionListener, snackbarOnDeniedPermissionListener), Manifest.permission.CAMERA);
     }
 
+
+    void syncContactExchangeContacts() {
+        List<ContactExchangeContact> contactExchangeContacts = ContactExchangeController.getUnsyncedContactExchangeContactsBySpaceId_Cold(getRealm(), space_Cold.getId());
+
+        for (ContactExchangeContact c: contactExchangeContacts) {
+            APIController.getService().syncContactExchangeContact(c)
+                    .subscribeOn(Schedulers.io())
+                    .unsubscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<ContactExchangeContact>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(ContactExchangeContact contactExchangeContact) {
+                            contactExchangeContact.setSpace(space_Cold);
+                            contactExchangeContact.setSynced(true);
+                            ContactExchangeController.updateContactExchangeContact(getRealm(), contactExchangeContact);
+                            l("synced");
+                        }
+                    });
+        }
+    }
+
+
     @Override
     public void initViews(Bundle savedInstanceState) {
 
@@ -110,44 +147,45 @@ public class ScannerActivity extends BaseActivity implements ZBarScannerView.Res
     public void handleResult(Result result) {
 
         final String data = result.getContents();
-        l("Raw Data:" + data);
         zBarScannerView.stopCameraPreview();
 
-        new AlertDialog.Builder(ScannerActivity.this)
-                .setTitle("Checking attendee?")
-                .setCancelable(false)
-                .setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (ContactExchangeUtils.isValidCode(data)) {
-                            String puk = ContactExchangeUtils.getPukFromCode(data);
-                            String key = ContactExchangeUtils.getKeyFromCode(data);
 
-                            Realm realm = getRealm();
+        if (ContactExchangeUtils.isValidCode(data)) {
+            String puk = ContactExchangeUtils.getPukFromCode(data);
+            String key = ContactExchangeUtils.getKeyFromCode(data);
 
-                            l("Puk: "+puk);
-                            l("Key: "+key);
-                            ContactExchangeContact contactExchangeContact = ContactExchangeController.getContactExchangeContactFromPukAndKeyAndSpaceId_Hot(realm, puk, key, space_Cold.getId());
+            final ContactExchangeContact contactExchangeContact = ContactExchangeController.getContactExchangeContactFromPukAndKeyAndSpaceId_Hot(realm, puk, key, space_Cold.getId());
 
-                            if (contactExchangeContact != null)
-                                ContactExchangeController.addContactExchangeContact(realm, contactExchangeContact);
-                            else
-                                Toast.makeText(ScannerActivity.this, "Not found. Are you sure you are in the right event?",
-                                        Toast.LENGTH_LONG).show();
+            if (contactExchangeContact != null) {
+                new AlertDialog.Builder(ScannerActivity.this)
+                        .setTitle("Add "+contactExchangeContact.getFullname()+" ?")
+                        .setMessage(""+contactExchangeContact.getJobTitle()+"\n"+contactExchangeContact.getCompany())
+                        .setCancelable(false)
+                        .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ContactExchangeController.addContactExchangeContact(getRealm(), contactExchangeContact);
+                                syncContactExchangeContacts();
+                                zBarScannerView.resumeCameraPreview(ScannerActivity.this);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                zBarScannerView.resumeCameraPreview(ScannerActivity.this);
+                            }
+                        })
+                        .create().show();
+            }
+            else
+                Toast.makeText(ScannerActivity.this, "Not found. Are you sure you are in the right event?",
+                        Toast.LENGTH_LONG).show();
 
-                        } else {
-                            Toast.makeText(ScannerActivity.this, "Invalid QR Code", Toast.LENGTH_LONG).show();
-                        }
-                        zBarScannerView.resumeCameraPreview(ScannerActivity.this);
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        zBarScannerView.resumeCameraPreview(ScannerActivity.this);
-                    }
-                })
-                .create().show();
+        } else {
+            Toast.makeText(ScannerActivity.this, "Invalid QR Code", Toast.LENGTH_LONG).show();
+        }
+
+
 
 
     }
