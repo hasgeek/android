@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/fragment_contact_exchange_item_fullname"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <TextView
                 android:text="TextView"

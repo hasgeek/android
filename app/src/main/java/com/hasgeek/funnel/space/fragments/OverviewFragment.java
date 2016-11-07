@@ -22,6 +22,7 @@ import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.helpers.utils.TimeUtils;
+import com.hasgeek.funnel.model.Announcement;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
@@ -30,6 +31,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
@@ -71,19 +73,29 @@ public class OverviewFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_overview, container, false);
         Realm realm = Realm.getDefaultInstance();
-        Space s = SpaceController.getSpaceById_Cold(realm, spaceId);
 
-        TextView headline = (TextView)view.findViewById(R.id.fragment_overview_tv_headline);
-        TextView description = (TextView)view.findViewById(R.id.fragment_overview_tv_description);
-        TextView announcement = (TextView)view.findViewById(R.id.fragment_overview_tv_announcement);
 //        Button scheduleBtn = (Button)view.findViewById(R.id.btn_view_schedule);
 //        Button scanBadgeBtn = (Button)view.findViewById(R.id.btn_scan_badge);
         RecyclerView recyclerViewUpcomingSessions = (RecyclerView)view.findViewById(R.id.fragment_overview_recyclerview_upcoming);
+        RecyclerView recyclerViewAnnouncements = (RecyclerView)view.findViewById(R.id.fragment_overview_recyclerview_annoucements);
+
 
         recyclerViewUpcomingSessions.setLayoutManager(new LinearLayoutManager(getContext()));
-        RealmResults<Session> sessions = SessionController.getSessionsBySpaceId(realm, spaceId);
+        RealmResults<Session> allSessions = SessionController.getSessionsBySpaceId(realm, spaceId);
 
-        recyclerViewUpcomingSessions.setAdapter(new UpnextRecyclerViewAdapter(getActivity(), sessions, new ItemInteractionListener<Session>() {
+
+        List<Session> sessions = new ArrayList<>();
+
+        Calendar now = Calendar.getInstance();
+
+        for (Session s: allSessions) {
+            if (now.before(TimeUtils.getCalendarFromISODateString(s.getStart())))
+                sessions.add(s);
+            if (sessions.size()==2)
+                break;
+        }
+
+        recyclerViewUpcomingSessions.setAdapter(new UpnextRecyclerViewAdapter(sessions, new ItemInteractionListener<Session>() {
             @Override
             public void onItemClick(View v, Session item) {
                 overviewFragmentInteractionListener.onSessionClick(item);
@@ -95,9 +107,32 @@ public class OverviewFragment extends BaseFragment {
             }
         }));
 
-        headline.setText(s.getTitle());
-        description.setText(s.getDatelocation());
-        announcement.setText("Please collect your food tokens from the registration desk. You will receive new food tokens tomorrow.");
+
+        recyclerViewAnnouncements.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+
+        List<Announcement> announcements = new ArrayList<>();
+
+        Announcement a1 = new Announcement();
+        a1.setTitle("Food!");
+        a1.setTime("8:00AM");
+        a1.setDescription("Please collect your food tokens from the registration desk. You will receive new food tokens tomorrow.");
+
+        Announcement a2 = new Announcement();
+        a2.setTitle("Wifi");
+        a2.setTime("9:00AM");
+        a2.setDescription("WiFi SSID: HasGeek \n Password: geeksrus");
+
+        Announcement a3 = new Announcement();
+        a3.setTitle("Flash Talks");
+        a3.setTime("11:00AM");
+        a3.setDescription("Please register for flash talks at the registration desk");
+
+        announcements.add(a1);
+        announcements.add(a2);
+        announcements.add(a3);
+
+        recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(announcements));
 
 //        scheduleBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override

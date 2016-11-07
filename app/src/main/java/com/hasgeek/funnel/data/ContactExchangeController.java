@@ -143,4 +143,6 @@ public class ContactExchangeController {
         realm.insertOrUpdate(contactExchangeContact);
         realm.commitTransaction();
     }
+
+    public static void
 }

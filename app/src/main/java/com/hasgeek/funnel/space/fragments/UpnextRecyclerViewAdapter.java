@@ -9,20 +9,25 @@ import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
+import com.hasgeek.funnel.helpers.utils.TimeUtils;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.space.SpaceActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
-public class UpnextRecyclerViewAdapter extends RealmRecyclerViewAdapter<Session, UpnextRecyclerViewAdapter.UpnextViewHolder> {
+public class UpnextRecyclerViewAdapter extends RecyclerView.Adapter<UpnextRecyclerViewAdapter.UpnextViewHolder> {
 
     private final ItemInteractionListener mListener;
 
+    private List<Session> data;
 
-    public UpnextRecyclerViewAdapter(Activity activity, OrderedRealmCollection<Session> data, ItemInteractionListener<Session> listener) {
-        super(activity, data, true);
+    public UpnextRecyclerViewAdapter(List<Session> data, ItemInteractionListener<Session> listener) {
         mListener = listener;
+        this.data = data;
     }
 
     @Override
@@ -33,15 +38,20 @@ public class UpnextRecyclerViewAdapter extends RealmRecyclerViewAdapter<Session,
     }
 
     @Override
+    public int getItemCount() {
+        return data.size();
+    }
+
+    @Override
     public void onBindViewHolder(final UpnextViewHolder holder, int position) {
 
-        Session s = getData().get(position);
+        Session s = data.get(position);
 
         holder.mItem = s;
 
         holder.tv_title.setText(s.getTitle());
         holder.tv_speaker.setText(s.getSpeaker());
-        holder.tv_time.setText("12:00pm");
+        holder.tv_time.setText(TimeUtils.getSimpleTimeForString(s.getStart()));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

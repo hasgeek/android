@@ -134,8 +134,10 @@ public class SpaceActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Attendee> attendeeList) {
                         Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
                         ContactExchangeController.deleteAttendeesBySpaceId(realm, space_Cold.getId());
                         ContactExchangeController.saveAttendees(realm, attendeeList);
+                        realm.commitTransaction();
                         realm.close();
                         l("Saved "+attendeeList.size()+" attendees for "+space_Cold.getTitle());
                     }
@@ -198,6 +200,7 @@ public class SpaceActivity extends BaseActivity {
 
         getSupportActionBar().setTitle(space_Cold.getTitle());
         getSupportActionBar().setSubtitle(space_Cold.getDatelocation());
+        getSupportActionBar().setIcon(R.drawable.ic_droidcon);
 
         bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
 
@@ -343,6 +346,9 @@ public class SpaceActivity extends BaseActivity {
             case R.id.contact_exchange_menu_logout:
                 AuthController.deleteAuthToken();
                 currentLoggedIn = false;
+                return true;
+            case R.id.contact_exchange_menu_export:
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
