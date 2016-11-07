@@ -141,4 +141,31 @@ public class ContactExchangeController {
         realm.commitTransaction();
     }
 
+
+    public static String getContactExchangeContactsAsCSVStringFromSpaceId(Realm realm, String spaceId) {
+        RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = realm.where(ContactExchangeContact.class)
+                .equalTo("space.id", spaceId)
+                .equalTo("synced", true)
+                .findAll();
+
+        StringBuilder data = new StringBuilder("fullname,company,jobtitle,email,phone,twitter\n");
+
+        for (ContactExchangeContact contact: contactExchangeContactRealmResults) {
+            data.append(contact.getFullname());
+            data.append(",");
+            data.append(contact.getCompany());
+            data.append(",");
+            data.append(contact.getJobTitle());
+            data.append(",");
+            data.append(contact.getEmail());
+            data.append(",");
+            data.append(contact.getPhone());
+            data.append(",");
+            data.append(contact.getTwitter());
+            data.append("\n");
+        }
+
+        return data.toString();
+    }
+
 }

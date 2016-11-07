@@ -32,6 +32,17 @@
         <activity
             android:name=".scanner.ScannerActivity"
             android:screenOrientation="portrait" />
+
+        <provider
+            android:name=".helpers.providers.CSVProvider"
+            android:authorities="com.hasgeek.funnel.helpers.providers.CSVProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/export_paths"
+                />
+        </provider>
     </application>
 
 </manifest>

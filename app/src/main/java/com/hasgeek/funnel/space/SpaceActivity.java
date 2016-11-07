@@ -29,6 +29,7 @@ import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
+import com.hasgeek.funnel.helpers.providers.CSVProvider;
 import com.hasgeek.funnel.model.Attendee;
 import com.hasgeek.funnel.model.ContactExchangeContact;
 import com.hasgeek.funnel.model.Session;
@@ -39,6 +40,10 @@ import com.hasgeek.funnel.space.fragments.ContactExchangeFragment;
 import com.hasgeek.funnel.space.fragments.OverviewFragment;
 import com.hasgeek.funnel.space.fragments.ScheduleContainerFragment;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -314,12 +319,13 @@ public class SpaceActivity extends BaseActivity {
                 currentLoggedIn = false;
                 return true;
             case R.id.contact_exchange_menu_export:
-
+                exportContactExchangeContactsAsCSV();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
 //    void switchToOverview() {
 //
@@ -410,6 +416,40 @@ public class SpaceActivity extends BaseActivity {
 //
 //    }
 
+
+    private void exportContactExchangeContactsAsCSV() {
+        try {
+            File cacheDir = getCacheDir();
+            File file = new File(cacheDir, "contacts.csv");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            String csvString = ContactExchangeController.getContactExchangeContactsAsCSVStringFromSpaceId(getRealm(), space_Cold.getId());
+
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write(csvString);
+            bufferedWriter.close();
+
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.setType("*/*");
+            //Add the attachment by specifying a reference to our custom ContentProvider
+            //and the specific file of interest
+            shareIntent.putExtra(
+                    Intent.EXTRA_STREAM,
+                    Uri.parse("content://" + CSVProvider.AUTHORITY + "/"
+                            + "contacts.csv"));
+            shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(shareIntent, "Export contacts"));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            toast("Oops, something went wrong");
+        }
+
+    }
 
     void showBadgeScan(View view) {
 
