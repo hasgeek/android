@@ -90,7 +90,7 @@ public class OverviewFragment extends BaseFragment {
 
         for (Session s: allSessions) {
             if (now.before(TimeUtils.getCalendarFromISODateString(s.getStart())))
-                sessions.add(s);
+                sessions.add(realm.copyFromRealm(s));
             if (sessions.size()==2)
                 break;
         }
@@ -98,6 +98,7 @@ public class OverviewFragment extends BaseFragment {
         recyclerViewUpcomingSessions.setAdapter(new UpnextRecyclerViewAdapter(sessions, new ItemInteractionListener<Session>() {
             @Override
             public void onItemClick(View v, Session item) {
+
                 overviewFragmentInteractionListener.onSessionClick(item);
             }
 
@@ -150,6 +151,11 @@ public class OverviewFragment extends BaseFragment {
 
 
         return view;
+    }
+
+    @Override
+    public void refresh() {
+
     }
 
     @Override

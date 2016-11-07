@@ -7,15 +7,19 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
 import com.hasgeek.funnel.data.AuthController;
 import com.hasgeek.funnel.data.ContactExchangeController;
 import com.hasgeek.funnel.data.SessionController;
@@ -23,6 +27,7 @@ import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
+import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Attendee;
 import com.hasgeek.funnel.model.ContactExchangeContact;
@@ -49,19 +54,19 @@ public class SpaceActivity extends BaseActivity {
 
     public static final String STATE_FRAGMENT_ID = "state_fragment_id";
 
-    public String stateCurrentFragmentId;
+    public BaseFragment currentFragment;
 
     public Space space_Cold;
 
     public boolean currentLoggedIn;
 
     Toolbar toolbar;
-    AHBottomNavigation bottomNavigation;
-    FloatingActionButton fab;
 
-    OverviewFragment overviewFragment;
-    ScheduleContainerFragment scheduleContainerFragment;
-    ContactExchangeFragment contactExchangeFragment;
+    AHBottomNavigation bottomNavigation;
+    AHBottomNavigationViewPager bottomNavigationViewPager;
+    BottomNavigationPagerAdapter bottomNavigationPagerAdapter;
+
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,12 +138,7 @@ public class SpaceActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Attendee> attendeeList) {
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        ContactExchangeController.deleteAttendeesBySpaceId(realm, space_Cold.getId());
-                        ContactExchangeController.saveAttendees(realm, attendeeList);
-                        realm.commitTransaction();
-                        realm.close();
+                        ContactExchangeController.deleteAndSaveAttendeesBySpaceId(getRealm(), space_Cold.getId(), attendeeList);
                         l("Saved "+attendeeList.size()+" attendees for "+space_Cold.getTitle());
                     }
                 });
@@ -202,7 +202,20 @@ public class SpaceActivity extends BaseActivity {
         getSupportActionBar().setSubtitle(space_Cold.getDatelocation());
         getSupportActionBar().setIcon(R.drawable.ic_droidcon);
 
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBadgeScan(view);
+            }
+        });
+
+
         bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
+        bottomNavigation.setDefaultBackgroundColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimaryDark));
+        bottomNavigation.setAccentColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorAccent));
+        bottomNavigation.setInactiveColor(ContextCompat.getColor(SpaceActivity.this, android.R.color.white));
 
         AHBottomNavigationItem overviewBottomNavItem = new AHBottomNavigationItem("Overview", R.drawable.ic_home, R.color.colorAccent);
         AHBottomNavigationItem scheduleBottomNavItem = new AHBottomNavigationItem("Schedule", R.drawable.ic_time_schedule, R.color.colorAccent);
@@ -220,110 +233,63 @@ public class SpaceActivity extends BaseActivity {
         bottomNavigation.addItems(bottomNavigationItems);
 
 
+        bottomNavigationViewPager = (AHBottomNavigationViewPager) findViewById(R.id.activity_space_fragment_viewpager);
+        bottomNavigationViewPager.setOffscreenPageLimit(3);
+
+
+        bottomNavigationPagerAdapter = new BottomNavigationPagerAdapter(getSupportFragmentManager());
+        bottomNavigationPagerAdapter.addFragment(OverviewFragment.newInstance(space_Cold.getId()), "Overview");
+        bottomNavigationPagerAdapter.addFragment(ScheduleContainerFragment.newInstance(space_Cold.getId()), "Schedule");
+        bottomNavigationPagerAdapter.addFragment(ContactExchangeFragment.newInstance(space_Cold.getId()), "Contacts");
+
+        bottomNavigationViewPager.setAdapter(bottomNavigationPagerAdapter);
+
+
+        bottomNavigation.setBehaviorTranslationEnabled(false);
+
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
             public boolean onTabSelected(int position, boolean wasSelected) {
 
-                if (wasSelected)
+                if (currentFragment == null)
+                    currentFragment = bottomNavigationPagerAdapter.getCurrentFragment();
+
+                if (wasSelected) {
+                    currentFragment.refresh();
                     return true;
-                switch (position) {
-                    case 0:
-                        switchToOverview();
-                        return true;
-                    case 1:
-                        switchToSchedule();
-                        return true;
-                    case 2:
-                        switchToContacts();
-                        return true;
                 }
-                return false;
+
+                bottomNavigationViewPager.setCurrentItem(position, false);
+
+//                switch (position) {
+//                    case 0:
+//                        switchToOverview();
+//                        return true;
+//                    case 1:
+//                        switchToSchedule();
+//                        return true;
+//                    case 2:
+//                        switchToContacts();
+//                        return true;
+//                }
+
+                return true;
             }
         });
 
-        bottomNavigation.setBehaviorTranslationEnabled(false);
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
 
 
-        if (savedInstanceState != null ) {
-
-            FragmentManager fragmentManager = getSupportFragmentManager();
-
-            Fragment overviewFragmentTemp = fragmentManager.getFragment(savedInstanceState, OverviewFragment.FRAGMENT_TAG);
-
-            overviewFragment = overviewFragmentTemp != null ? (OverviewFragment) overviewFragmentTemp: OverviewFragment.newInstance(space_Cold.getId());
-
-
-            Fragment scheduleContainerFragmentTemp = fragmentManager.getFragment(savedInstanceState, ScheduleContainerFragment.FRAGMENT_TAG);
-
-            scheduleContainerFragment = scheduleContainerFragmentTemp != null ? (ScheduleContainerFragment) scheduleContainerFragmentTemp : ScheduleContainerFragment.newInstance(space_Cold.getId());
-
-
-            Fragment contactExchangeFragmentTemp = fragmentManager.getFragment(savedInstanceState, ContactExchangeFragment.FRAGMENT_TAG);
-
-            contactExchangeFragment = contactExchangeFragmentTemp != null ? (ContactExchangeFragment) contactExchangeFragmentTemp : ContactExchangeFragment.newInstance(space_Cold.getId());
-            stateCurrentFragmentId = savedInstanceState.getString(STATE_FRAGMENT_ID, OverviewFragment.FRAGMENT_TAG);
-        }
-        else {
-
-            overviewFragment =  OverviewFragment.newInstance(space_Cold.getId());
-
-            scheduleContainerFragment = ScheduleContainerFragment.newInstance(space_Cold.getId());
-
-            contactExchangeFragment = ContactExchangeFragment.newInstance(space_Cold.getId());
-
-            stateCurrentFragmentId = OverviewFragment.FRAGMENT_TAG;
-        }
-
-        switch (stateCurrentFragmentId) {
-            case OverviewFragment.FRAGMENT_TAG:
-                switchToOverview();
-                break;
-            case ScheduleContainerFragment.FRAGMENT_TAG:
-                switchToSchedule();
-                break;
-            case ContactExchangeFragment.FRAGMENT_TAG:
-                switchToContacts();
-                break;
-        }
 
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
 
-        outState.putString(STATE_FRAGMENT_ID, stateCurrentFragmentId);
+//        outState.putString(STATE_FRAGMENT_ID, stateCurrentFragmentId);
 
         super.onSaveInstanceState(outState);
     }
 
-    void switchToOverview() {
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-
-
-        if (overviewFragment.isAdded()) {
-            fragmentTransaction.show(overviewFragment);
-        } else {
-            fragmentTransaction.add(R.id.activity_space_fragment_frame, overviewFragment, OverviewFragment.FRAGMENT_TAG);
-        }
-
-        if (scheduleContainerFragment.isAdded())
-            fragmentTransaction.hide(scheduleContainerFragment);
-
-        if (contactExchangeFragment.isAdded())
-            fragmentTransaction.hide(contactExchangeFragment);
-
-        fragmentTransaction.commit();
-
-        stateCurrentFragmentId = OverviewFragment.FRAGMENT_TAG;
-
-
-        fab.setVisibility(View.GONE);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -355,66 +321,94 @@ public class SpaceActivity extends BaseActivity {
         }
     }
 
-    void switchToSchedule() {
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-
-        if (scheduleContainerFragment.isAdded()) {
-            fragmentTransaction.show(scheduleContainerFragment);
-        } else {
-            fragmentTransaction.add(R.id.activity_space_fragment_frame, scheduleContainerFragment, ScheduleContainerFragment.FRAGMENT_TAG);
-        }
-
-        if (overviewFragment.isAdded())
-            fragmentTransaction.hide(overviewFragment);
-
-        if (contactExchangeFragment.isAdded())
-            fragmentTransaction.hide(contactExchangeFragment);
-
-
-        fragmentTransaction.commit();
-
-
-        stateCurrentFragmentId = ScheduleContainerFragment.FRAGMENT_TAG;
-
-        fab.setVisibility(View.GONE);
-
-    }
-
-    void switchToContacts() {
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.setCustomAnimations(android.R.anim., android.R.anim.slide_out_right);
-
-        if (contactExchangeFragment.isAdded()) {
-            fragmentTransaction.show(contactExchangeFragment);
-        } else {
-            fragmentTransaction.add(R.id.activity_space_fragment_frame, contactExchangeFragment, ContactExchangeFragment.FRAGMENT_TAG);
-        }
-
-        if (overviewFragment.isAdded())
-            fragmentTransaction.hide(overviewFragment);
-
-        if (scheduleContainerFragment.isAdded())
-            fragmentTransaction.hide(scheduleContainerFragment);
-
-
-        fragmentTransaction.commit();
-
-        stateCurrentFragmentId = ContactExchangeFragment.FRAGMENT_TAG;
-
-        fab.setVisibility(View.VISIBLE);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showBadgeScan(view);
-            }
-        });
-
-    }
+//    void switchToOverview() {
+//
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+////        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+//
+//
+//        if (overviewFragment.isAdded()) {
+//            fragmentTransaction.show(overviewFragment);
+//        } else {
+//            fragmentTransaction.add(R.id.activity_space_fragment_frame, overviewFragment, OverviewFragment.FRAGMENT_TAG);
+//        }
+//
+//        if (scheduleContainerFragment.isAdded())
+//            fragmentTransaction.hide(scheduleContainerFragment);
+//
+//        if (contactExchangeFragment.isAdded())
+//            fragmentTransaction.hide(contactExchangeFragment);
+//
+//        fragmentTransaction.commit();
+//
+//        stateCurrentFragmentId = OverviewFragment.FRAGMENT_TAG;
+//
+//
+//        fab.setVisibility(View.GONE);
+//    }
+//
+//
+//    void switchToSchedule() {
+//
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+////        fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+//
+//        if (scheduleContainerFragment.isAdded()) {
+//            fragmentTransaction.show(scheduleContainerFragment);
+//        } else {
+//            fragmentTransaction.add(R.id.activity_space_fragment_frame, scheduleContainerFragment, ScheduleContainerFragment.FRAGMENT_TAG);
+//        }
+//
+//        if (overviewFragment.isAdded())
+//            fragmentTransaction.hide(overviewFragment);
+//
+//        if (contactExchangeFragment.isAdded())
+//            fragmentTransaction.hide(contactExchangeFragment);
+//
+//
+//        fragmentTransaction.commit();
+//
+//
+//        stateCurrentFragmentId = ScheduleContainerFragment.FRAGMENT_TAG;
+//
+//        fab.setVisibility(View.GONE);
+//
+//    }
+//
+//    void switchToContacts() {
+//
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+////        fragmentTransaction.setCustomAnimations(android.R.anim., android.R.anim.slide_out_right);
+//
+//        if (contactExchangeFragment.isAdded()) {
+//            fragmentTransaction.show(contactExchangeFragment);
+//        } else {
+//            fragmentTransaction.add(R.id.activity_space_fragment_frame, contactExchangeFragment, ContactExchangeFragment.FRAGMENT_TAG);
+//        }
+//
+//        if (overviewFragment.isAdded())
+//            fragmentTransaction.hide(overviewFragment);
+//
+//        if (scheduleContainerFragment.isAdded())
+//            fragmentTransaction.hide(scheduleContainerFragment);
+//
+//
+//        fragmentTransaction.commit();
+//
+//        stateCurrentFragmentId = ContactExchangeFragment.FRAGMENT_TAG;
+//
+//        fab.setVisibility(View.VISIBLE);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                showBadgeScan(view);
+//            }
+//        });
+//
+//    }
 
 
     void showBadgeScan(View view) {
@@ -452,7 +446,7 @@ public class SpaceActivity extends BaseActivity {
     OverviewFragment.OverviewFragmentInteractionListener overviewFragmentInteractionListener = new OverviewFragment.OverviewFragmentInteractionListener() {
         @Override
         public void onScheduleClick() {
-            switchToSchedule();
+//            switchToSchedule();
         }
 
         @Override
@@ -522,5 +516,48 @@ public class SpaceActivity extends BaseActivity {
 
     public ContactExchangeFragment.ContactExchangeFragmentListener getContactExchangeFragmentListener() {
         return contactExchangeFragmentListener;
+    }
+
+
+    public class BottomNavigationPagerAdapter extends FragmentPagerAdapter {
+
+        private final List<Fragment> fragmentList = new ArrayList<>();
+        private final List<String> titleList = new ArrayList<>();
+        private BaseFragment currentFragment;
+
+        public BottomNavigationPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            fragmentList.add(fragment);
+            titleList.add(title);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return fragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return fragmentList.size();
+        }
+
+        @Override
+        public void setPrimaryItem(ViewGroup container, int position, Object object) {
+            if (getCurrentFragment() != object)
+                currentFragment = (BaseFragment) object;
+            super.setPrimaryItem(container, position, object);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return titleList.get(position);
+        }
+
+        public BaseFragment getCurrentFragment() {
+            return currentFragment;
+        }
     }
 }

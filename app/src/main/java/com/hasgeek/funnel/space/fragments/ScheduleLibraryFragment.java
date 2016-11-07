@@ -134,6 +134,11 @@ public class ScheduleLibraryFragment extends BaseFragment {
     }
 
     @Override
+    public void refresh() {
+
+    }
+
+    @Override
     public void notFoundError() {
 
     }

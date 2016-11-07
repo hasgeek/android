@@ -50,7 +50,10 @@ public class UpnextRecyclerViewAdapter extends RecyclerView.Adapter<UpnextRecycl
         holder.mItem = s;
 
         holder.tv_title.setText(s.getTitle());
-        holder.tv_speaker.setText(s.getSpeaker());
+        if (s.getSpeaker() == null || s.getSpeaker() == "")
+            holder.tv_speaker.setVisibility(View.GONE);
+        else
+            holder.tv_speaker.setText(s.getSpeaker());
         holder.tv_time.setText(TimeUtils.getSimpleTimeForString(s.getStart()));
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

@@ -49,8 +49,12 @@ public class ContactExchangeController {
         return null;
     }
 
-    public static void saveAttendees(Realm realm, List<Attendee> attendeeList) {
+    public static void deleteAndSaveAttendeesBySpaceId(Realm realm, String spaceId, List<Attendee> attendeeList) {
         realm.beginTransaction();
+        realm.where(Attendee.class)
+                .equalTo("space.id", spaceId)
+                .findAll()
+                .deleteAllFromRealm();
         realm.copyToRealmOrUpdate(attendeeList);
         realm.commitTransaction();
     }
@@ -107,13 +111,6 @@ public class ContactExchangeController {
         return contactExchangeContact;
     }
 
-    public static RealmResults<ContactExchangeContact> getUnsyncedContactExchangeContactsBySpaceId_Hot(Realm realm, String spaceId) {
-        return realm.where(ContactExchangeContact.class)
-                .equalTo("space.id", spaceId)
-                .equalTo("synced", false)
-                .findAll();
-    }
-
     public static List<ContactExchangeContact> getUnsyncedContactExchangeContactsBySpaceId_Cold(Realm realm, String spaceId) {
         RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = getContactExchangeContactsBySpaceId_Hot(realm, spaceId);
 
@@ -144,5 +141,4 @@ public class ContactExchangeController {
         realm.commitTransaction();
     }
 
-    public static void
 }

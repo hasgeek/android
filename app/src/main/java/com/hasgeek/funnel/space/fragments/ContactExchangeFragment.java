@@ -94,6 +94,11 @@ public class ContactExchangeFragment extends BaseFragment {
     }
 
     @Override
+    public void refresh() {
+
+    }
+
+    @Override
     public void notFoundError() {
         // TODO: Implement not found view
     }

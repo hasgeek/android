@@ -12,7 +12,6 @@ import android.widget.Toast;
 public abstract class BaseFragment extends Fragment {
 
     public BaseFragment() {
-        setRetainInstance(true);
     }
 
     public void toast(String msg) {
@@ -30,6 +29,8 @@ public abstract class BaseFragment extends Fragment {
     public void li(String msg) {
         Log.i(this.getClass().getSimpleName(), msg+" ");
     }
+
+    public abstract void refresh();
 
     public abstract void notFoundError();
 

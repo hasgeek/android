@@ -27,7 +27,8 @@
             android:paddingRight="10sp"
             android:id="@+id/fragment_overview_tv_announcement_item_description"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="normal|italic" />
         <android.support.v4.widget.Space
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

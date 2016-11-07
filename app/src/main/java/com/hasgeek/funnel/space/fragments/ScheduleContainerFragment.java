@@ -108,6 +108,11 @@ public class ScheduleContainerFragment extends BaseFragment {
     }
 
     @Override
+    public void refresh() {
+
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
     }
