@@ -129,7 +129,7 @@
                         android:layout_marginLeft="10sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Food Court"/>
+                        android:text="Food court" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -162,7 +162,7 @@
                         android:layout_marginLeft="10sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Live Stream"/>
+                        android:text="Live stream"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
             <android.support.v7.widget.CardView
@@ -186,14 +186,12 @@
                         android:layout_marginLeft="10sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Venue Map"/>
+                        android:text="Venue map"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
         </LinearLayout>
-
-
-
+        
     </LinearLayout>
 
 </ScrollView>

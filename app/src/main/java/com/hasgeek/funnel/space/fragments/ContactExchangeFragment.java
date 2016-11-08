@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.ContactExchangeController;
@@ -22,6 +23,7 @@ import com.hasgeek.funnel.space.SpaceActivity;
 
 
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 public class ContactExchangeFragment extends BaseFragment {
@@ -30,6 +32,9 @@ public class ContactExchangeFragment extends BaseFragment {
     public static final String FRAGMENT_TAG = "ContactExchangeFragment";
     private ContactExchangeFragmentListener contactExchangeFragmentListener;
     private String spaceId;
+
+    private boolean isEmpty = false;
+
     public ContactExchangeFragment() {
     }
 
@@ -66,8 +71,34 @@ public class ContactExchangeFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_contact_exchange, container, false);
         Realm realm = Realm.getDefaultInstance();
         Space space = SpaceController.getSpaceById_Cold(realm, spaceId);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_contact_exchange_recyclerview);
+        final RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.fragment_contact_exchange_recyclerview);
+        final TextView textView = (TextView) view.findViewById(R.id.fragment_contact_exchange_empty_message);
         RealmResults<ContactExchangeContact> contactExchangeContacts = ContactExchangeController.getContactExchangeContactsBySpaceId_Hot(realm, space.getId());
+
+        if (contactExchangeContacts.size() == 0) {
+            isEmpty = true;
+            recyclerView.setVisibility(View.GONE);
+            textView.setVisibility(View.VISIBLE);
+        }
+
+        contactExchangeContacts.addChangeListener(new RealmChangeListener<RealmResults<ContactExchangeContact>>() {
+            @Override
+            public void onChange(RealmResults<ContactExchangeContact> element) {
+
+                if (element.size()==0) {
+                    recyclerView.setVisibility(View.GONE);
+                    textView.setVisibility(View.VISIBLE);
+                }
+
+
+                if (isEmpty)
+                    if (element.size()!=0) {
+                        textView.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    }
+
+            }
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
