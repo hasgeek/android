@@ -12,6 +12,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.hasgeek.funnel.data.DeviceController;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.helpers.BaseFragment;
@@ -162,6 +164,11 @@ public class ScheduleFragment extends BaseFragment {
             background.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Answers.getInstance().logContentView(new ContentViewEvent()
+                            .putContentName(s.getTitle())
+                            .putContentType("Session View")
+                            .putCustomAttribute("Referrer", "Schedule")
+                            .putContentId(s.getId()));
                     sessionItemInteractionListener.onItemClick(view, s);
                 }
             });

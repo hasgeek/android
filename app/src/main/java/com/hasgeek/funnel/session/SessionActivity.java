@@ -12,6 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;

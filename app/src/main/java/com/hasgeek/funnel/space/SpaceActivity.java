@@ -24,6 +24,9 @@ import android.view.ViewGroup;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationViewPager;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.CustomEvent;
 import com.hasgeek.funnel.data.AuthController;
 import com.hasgeek.funnel.data.ContactExchangeController;
 import com.hasgeek.funnel.data.SessionController;
@@ -535,6 +538,10 @@ public class SpaceActivity extends BaseActivity {
                             else
                                 uri = metadata_Cold.getDiscussionSlackWeb();
 
+                            Answers.getInstance().logCustom(new CustomEvent("Discussion")
+                                    .putCustomAttribute("Type", "Button")
+                                    .putCustomAttribute("Invited", "true"));
+
                             Intent i = new Intent(Intent.ACTION_VIEW);
                             i.setData(Uri.parse(uri));
                             startActivity(i);
@@ -543,6 +550,11 @@ public class SpaceActivity extends BaseActivity {
                     .setNegativeButton("No, send me an invite", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+
+                            Answers.getInstance().logCustom(new CustomEvent("Discussion")
+                                    .putCustomAttribute("Type", "Button")
+                                    .putCustomAttribute("Invited", "false"));
+
                             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
                                     .setToolbarColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimary));
 
@@ -560,6 +572,10 @@ public class SpaceActivity extends BaseActivity {
             if (metadata_Cold == null)
                 return;
 
+            Answers.getInstance().logContentView(new ContentViewEvent()
+                    .putContentName("Food court")
+                    .putContentType("Button")
+                    .putContentId("foodcourt"));
             Intent intent = new Intent(SpaceActivity.this, FoodCourtActivity.class);
             intent.putExtra(FoodCourtActivity.EXTRA_SPACE_ID, space_Cold.getId());
             startActivity(intent);
@@ -569,6 +585,11 @@ public class SpaceActivity extends BaseActivity {
         public void onLiveStreamClick() {
             if (metadata_Cold==null)
                 return;
+
+            Answers.getInstance().logContentView(new ContentViewEvent()
+                    .putContentName("Live stream")
+                    .putContentType("Button")
+                    .putContentId("livestream"));
 
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
                     .setToolbarColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimary));
@@ -582,6 +603,11 @@ public class SpaceActivity extends BaseActivity {
 
             if (metadata_Cold==null)
                 return;
+
+            Answers.getInstance().logContentView(new ContentViewEvent()
+                    .putContentName("Venue map")
+                    .putContentType("Button")
+                    .putContentId("venuemap"));
 
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
                 .setToolbarColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimary));

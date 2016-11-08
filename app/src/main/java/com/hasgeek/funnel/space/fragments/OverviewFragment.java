@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.data.SpaceController;
@@ -113,6 +115,11 @@ public class OverviewFragment extends BaseFragment {
             @Override
             public void onItemClick(View v, Session item) {
 
+                Answers.getInstance().logContentView(new ContentViewEvent()
+                        .putContentName(item.getTitle())
+                        .putContentType("Session View")
+                        .putCustomAttribute("Referrer", "Up Next")
+                        .putContentId(item.getId()));
                 overviewFragmentInteractionListener.onSessionClick(item);
             }
 

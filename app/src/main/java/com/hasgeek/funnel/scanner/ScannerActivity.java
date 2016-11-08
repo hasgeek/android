@@ -9,6 +9,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.data.ContactExchangeController;
@@ -166,6 +168,9 @@ public class ScannerActivity extends BaseActivity implements ZBarScannerView.Res
                             public void onClick(DialogInterface dialog, int which) {
                                 ContactExchangeController.addContactExchangeContact(getRealm(), contactExchangeContact);
                                 syncContactExchangeContacts();
+
+                                Answers.getInstance().logCustom(new CustomEvent("Scanned Contact"));
+
                                 zBarScannerView.resumeCameraPreview(ScannerActivity.this);
                             }
                         })

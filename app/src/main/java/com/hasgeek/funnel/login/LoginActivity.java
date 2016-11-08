@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.LoginEvent;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.data.AuthController;
 import com.hasgeek.funnel.helpers.BaseActivity;
@@ -61,6 +63,9 @@ public class LoginActivity extends BaseActivity {
 
     void loginSuccessful(String access_token) {
         AuthController.saveAuthToken(access_token);
+        Answers.getInstance().logLogin(new LoginEvent()
+                .putMethod("Browser")
+                .putSuccess(true));
         Toast.makeText(LoginActivity.this, "Welcome!", Toast.LENGTH_SHORT).show();
         finish();
 
@@ -68,6 +73,9 @@ public class LoginActivity extends BaseActivity {
 
     void loginFailed() {
         Toast.makeText(LoginActivity.this, "Oops, something went wrong", Toast.LENGTH_SHORT).show();
+        Answers.getInstance().logLogin(new LoginEvent()
+                .putMethod("Browser")
+                .putSuccess(false));
         finish();
     }
 
