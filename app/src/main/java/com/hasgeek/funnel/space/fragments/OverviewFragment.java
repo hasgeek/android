@@ -109,9 +109,7 @@ public class OverviewFragment extends BaseFragment {
                 break;
         }
 
-        List<Session> allthesessions = realm.copyFromRealm(allSessions);
-
-        recyclerViewUpcomingSessions.setAdapter(new UpnextRecyclerViewAdapter(allthesessions, new ItemInteractionListener<Session>() {
+        recyclerViewUpcomingSessions.setAdapter(new UpnextRecyclerViewAdapter(sessions, new ItemInteractionListener<Session>() {
             @Override
             public void onItemClick(View v, Session item) {
 
