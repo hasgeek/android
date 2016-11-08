@@ -51,7 +51,7 @@ dependencies {
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.android.support:recyclerview-v7:24.2.1'
     compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
+    compile 'com.android.support:customtabs:24.2.1'
     // Squarify
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
@@ -71,12 +71,12 @@ dependencies {
     compile 'me.dm7.barcodescanner:zbar:1.9'
     // Dexter
     compile 'com.karumi:dexter:2.3.1'
-    // Calendar view
-    compile 'com.github.alamkanak:android-week-view:1.2.6'
     // Permissions
     compile 'com.karumi:dexter:2.3.1'
     // Bottom Tab Bar
     compile 'com.aurelhubert:ahbottomnavigation:1.5.1'
+    // Sectioned RecyclerView
+    compile 'com.truizlop.sectionedrecyclerview:library:1.2.0'
 }
 
 play {

@@ -147,7 +147,6 @@ public class ScannerActivity extends BaseActivity implements ZBarScannerView.Res
     public void handleResult(Result result) {
 
         final String data = result.getContents();
-        zBarScannerView.stopCameraPreview();
 
 
         if (ContactExchangeUtils.isValidCode(data)) {
@@ -157,6 +156,7 @@ public class ScannerActivity extends BaseActivity implements ZBarScannerView.Res
             final ContactExchangeContact contactExchangeContact = ContactExchangeController.getContactExchangeContactFromPukAndKeyAndSpaceId_Hot(realm, puk, key, space_Cold.getId());
 
             if (contactExchangeContact != null) {
+                zBarScannerView.stopCameraPreview();
                 new AlertDialog.Builder(ScannerActivity.this)
                         .setTitle("Add "+contactExchangeContact.getFullname()+" ?")
                         .setMessage(""+contactExchangeContact.getJobTitle()+"\n"+contactExchangeContact.getCompany())

@@ -1,6 +1,6 @@
 package com.hasgeek.funnel.space.fragments;
 
-import android.app.Activity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,16 +8,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
+import com.hasgeek.funnel.data.DeviceController;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.helpers.utils.TimeUtils;
 import com.hasgeek.funnel.model.Session;
-import com.hasgeek.funnel.space.SpaceActivity;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.OrderedRealmCollection;
-import io.realm.RealmRecyclerViewAdapter;
 
 public class UpnextRecyclerViewAdapter extends RecyclerView.Adapter<UpnextRecyclerViewAdapter.UpnextViewHolder> {
 
@@ -32,8 +29,11 @@ public class UpnextRecyclerViewAdapter extends RecyclerView.Adapter<UpnextRecycl
 
     @Override
     public UpnextViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
+        CardView view = (CardView)LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_overview_item_upnext, parent, false);
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        layoutParams.width = (int)(DeviceController.getDeviceWidth()*0.84);
+        view.setLayoutParams(layoutParams);
         return new UpnextViewHolder(view);
     }
 
@@ -56,6 +56,15 @@ public class UpnextRecyclerViewAdapter extends RecyclerView.Adapter<UpnextRecycl
             holder.tv_speaker.setText(s.getSpeaker());
         holder.tv_time.setText(TimeUtils.getSimpleTimeForString(s.getStart()));
 
+        if(s.getRoom()==null) {
+            holder.tv_location.setText("Main Auditorium");
+        } else if(s.getRoom().contains("audi")) {
+            holder.tv_location.setText("Main Auditorium");
+        }
+        else {
+            holder.tv_location.setText("Banquet Hall");
+        }
+
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,18 +78,20 @@ public class UpnextRecyclerViewAdapter extends RecyclerView.Adapter<UpnextRecycl
     }
 
     public class UpnextViewHolder extends RecyclerView.ViewHolder {
-        public View mView;
+        public CardView mView;
         public TextView tv_title;
         public TextView tv_speaker;
+        public TextView tv_location;
         public TextView tv_time;
         public Session mItem;
 
-        public UpnextViewHolder(View view) {
+        public UpnextViewHolder(CardView view) {
             super(view);
             mView = view;
             tv_title = (TextView) view.findViewById(R.id.fragment_overview_item_upnext_tv_session_title);
             tv_speaker = (TextView) view.findViewById(R.id.fragment_overview_item_upnext_tv_session_speaker);
             tv_time = (TextView) view.findViewById(R.id.fragment_overview_item_upnext_tv_session_time);
+            tv_location = (TextView) view.findViewById(R.id.fragment_overview_item_upnext_tv_session_location);
         }
     }
 }

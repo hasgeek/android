@@ -19,16 +19,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".login.LoginActivity" >
+        <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="talkfunnel"/>
+
+                <data android:scheme="talkfunnel" />
             </intent-filter>
         </activity>
         <activity android:name=".space.SpaceActivity" />
         <activity android:name=".session.SessionActivity" />
+        <activity android:name=".foodcourt.FoodCourtActivity"/>
         <activity
             android:name=".scanner.ScannerActivity"
             android:screenOrientation="portrait" />
@@ -36,12 +39,11 @@
         <provider
             android:name=".helpers.providers.CSVProvider"
             android:authorities="com.hasgeek.funnel.helpers.providers.CSVProvider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/export_paths"
-                />
+                android:resource="@xml/export_paths" />
         </provider>
     </application>
 

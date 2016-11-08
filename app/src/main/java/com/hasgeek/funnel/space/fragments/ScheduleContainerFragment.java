@@ -69,8 +69,8 @@ public class ScheduleContainerFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_schedule_container, container, false);
 
-        ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tabLayout);
+        ViewPager viewPager = (ViewPager) view.findViewById(R.id.fragment_schedule_container_viewpager);
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.fragment_schedule_container_tablayout);
 
         List<Session> sessions = SessionController.getSessionsBySpaceId(Realm.getDefaultInstance(), spaceId);
         HashMap<Integer, List<Session>> hashMap = ScheduleHelper.getDayOfYearMapFromSessions(sessions);

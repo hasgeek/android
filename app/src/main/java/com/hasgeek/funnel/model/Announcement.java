@@ -1,14 +1,22 @@
 package com.hasgeek.funnel.model;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Author: @karthikb351
  * Project: android
  */
 
 public class Announcement {
-    String title;
-    String time;
-    String description;
+
+    @SerializedName("title")
+    public String title;
+
+    @SerializedName("time")
+    public String time;
+
+    @SerializedName("description")
+    public String description;
 
     public String getTitle() {
         return title;

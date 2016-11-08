@@ -1,5 +1,8 @@
 package com.hasgeek.funnel.data;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.hasgeek.funnel.model.Metadata;
 import com.hasgeek.funnel.model.Space;
 
 import java.util.List;
@@ -31,4 +34,21 @@ public class SpaceController {
         realm.copyToRealmOrUpdate(spaces);
         realm.commitTransaction();
     }
+
+    public static void saveSpaceMetadataJSONBySpaceId(String spaceId, String metadataJSON) {
+        SharedPreferenceController.setSharedPref(spaceId+"_metadata", metadataJSON);
+    }
+
+    public static Metadata getSpaceMetadataBySpaceId(String spaceId) {
+        Gson gson = new GsonBuilder().create();
+        try {
+            String metadataJSON = SharedPreferenceController.getSharedPref(spaceId+"_metadata");
+            Metadata metadata = gson.fromJson(metadataJSON, Metadata.class);
+            return metadata;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

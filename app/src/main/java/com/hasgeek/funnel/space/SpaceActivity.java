@@ -1,8 +1,11 @@
 package com.hasgeek.funnel.space;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.ContactsContract;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -11,6 +14,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,14 +28,17 @@ import com.hasgeek.funnel.data.AuthController;
 import com.hasgeek.funnel.data.ContactExchangeController;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.data.SpaceController;
+import com.hasgeek.funnel.foodcourt.FoodCourtActivity;
 import com.hasgeek.funnel.helpers.BaseActivity;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.helpers.providers.CSVProvider;
+import com.hasgeek.funnel.helpers.utils.PackageUtils;
 import com.hasgeek.funnel.model.Attendee;
 import com.hasgeek.funnel.model.ContactExchangeContact;
+import com.hasgeek.funnel.model.Metadata;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.scanner.ScannerActivity;
@@ -43,7 +50,6 @@ import com.hasgeek.funnel.space.fragments.ScheduleContainerFragment;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,11 +63,11 @@ public class SpaceActivity extends BaseActivity {
 
     public static final String EXTRA_SPACE_ID = "extra_space_id";
 
-    public static final String STATE_FRAGMENT_ID = "state_fragment_id";
-
     public BaseFragment currentFragment;
 
     public Space space_Cold;
+
+    public Metadata metadata_Cold;
 
     public boolean currentLoggedIn;
 
@@ -95,6 +101,7 @@ public class SpaceActivity extends BaseActivity {
         }
 
         fetchSessions();
+        fetchMetadata();
 
         initViews(savedInstanceState);
     }
@@ -180,6 +187,31 @@ public class SpaceActivity extends BaseActivity {
         }
     }
 
+    void fetchMetadata() {
+        APIController.getService().getMetadataForSpaceId(space_Cold.getId())
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Metadata>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Metadata metadata) {
+                        if (bottomNavigationPagerAdapter.getCurrentFragment() instanceof OverviewFragment)
+                            bottomNavigationPagerAdapter.getCurrentFragment().refresh();
+                        metadata_Cold = metadata;
+                    }
+                });
+    }
+
     @Override
     protected void onResume() {
         if (!currentLoggedIn && AuthController.isLoggedIn()) {
@@ -208,6 +240,7 @@ public class SpaceActivity extends BaseActivity {
         getSupportActionBar().setIcon(R.drawable.ic_droidcon);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setVisibility(View.GONE);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,17 +299,17 @@ public class SpaceActivity extends BaseActivity {
 
                 bottomNavigationViewPager.setCurrentItem(position, false);
 
-//                switch (position) {
-//                    case 0:
-//                        switchToOverview();
-//                        return true;
-//                    case 1:
-//                        switchToSchedule();
-//                        return true;
-//                    case 2:
-//                        switchToContacts();
-//                        return true;
-//                }
+                switch (position) {
+                    case 0:
+                        fab.setVisibility(View.GONE);
+                        return true;
+                    case 1:
+                        fab.setVisibility(View.GONE);
+                        return true;
+                    case 2:
+                        fab.setVisibility(View.VISIBLE);
+                        return true;
+                }
 
                 return true;
             }
@@ -484,6 +517,80 @@ public class SpaceActivity extends BaseActivity {
     }
 
     OverviewFragment.OverviewFragmentInteractionListener overviewFragmentInteractionListener = new OverviewFragment.OverviewFragmentInteractionListener() {
+
+
+        @Override
+        public void onDiscussionClick() {
+
+            new AlertDialog.Builder(SpaceActivity.this)
+                    .setTitle("Join the discussion!")
+                    .setMessage("Are you on the Friends of HasGeek Slack team? Follow the discussion on the #droidcon channel")
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String uri;
+                            if (PackageUtils.isPackageInstalled(PackageUtils.SLACK_ANDROID_PACKAGE_NAME, getPackageManager()))
+                                uri = metadata_Cold.getDiscussionSlackDeeplink();
+                            else
+                                uri = metadata_Cold.getDiscussionSlackWeb();
+
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(Uri.parse(uri));
+                            startActivity(i);
+                        }
+                    })
+                    .setNegativeButton("No, send me an invite", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
+                                    .setToolbarColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimary));
+
+                            CustomTabsIntent customTabsIntent = builder.build();
+                            customTabsIntent.launchUrl(SpaceActivity.this, Uri.parse("https://friends.hasgeek.com/"));
+                        }
+                    })
+                    .create().show();
+
+        }
+
+        @Override
+        public void onFoodCourtClick() {
+
+            if (metadata_Cold == null)
+                return;
+
+            Intent intent = new Intent(SpaceActivity.this, FoodCourtActivity.class);
+            intent.putExtra(FoodCourtActivity.EXTRA_SPACE_ID, space_Cold.getId());
+            startActivity(intent);
+        }
+
+        @Override
+        public void onLiveStreamClick() {
+            if (metadata_Cold==null)
+                return;
+
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
+                    .setToolbarColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimary));
+
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.launchUrl(SpaceActivity.this, Uri.parse(metadata_Cold.getLivestreamUrl()));
+        }
+
+        @Override
+        public void onVenueMapClick() {
+
+            if (metadata_Cold==null)
+                return;
+
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
+                .setToolbarColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimary));
+
+            CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.launchUrl(SpaceActivity.this, Uri.parse(metadata_Cold.getVenueMapUrl()));
+
+        }
+
         @Override
         public void onScheduleClick() {
 //            switchToSchedule();
@@ -510,7 +617,8 @@ public class SpaceActivity extends BaseActivity {
     ItemInteractionListener sessionItemInteractionListener = new ItemInteractionListener<Session>() {
         @Override
         public void onItemClick(View v, Session session) {
-            showSessionDetails(v.getContext(), session);
+            if (!session.getIsBreak())
+                showSessionDetails(v.getContext(), session);
         }
 
         @Override
@@ -522,8 +630,33 @@ public class SpaceActivity extends BaseActivity {
 
     ContactExchangeFragment.ContactExchangeFragmentListener contactExchangeFragmentListener = new ContactExchangeFragment.ContactExchangeFragmentListener() {
         @Override
-        public void onContactExchangeContactClick(ContactExchangeContact contactExchangeContact) {
-            syncContactExchangeContacts();
+        public void onContactExchangeContactClick(final ContactExchangeContact contactExchangeContact) {
+
+            if (contactExchangeContact.isSynced())
+                new AlertDialog.Builder(SpaceActivity.this)
+                    .setTitle(contactExchangeContact.getFullname()+"")
+                    .setMessage("Company: "+contactExchangeContact.getCompany()+"\nPhone: "+contactExchangeContact.getPhone()+"\nEmail: "+contactExchangeContact.getEmail())
+                    .setCancelable(true)
+                    .setPositiveButton("Add to contacts", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Intent.ACTION_INSERT);
+                            intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+
+                            intent.putExtra(ContactsContract.Intents.Insert.NAME, contactExchangeContact.getFullname());
+                            intent.putExtra(ContactsContract.Intents.Insert.PHONE, contactExchangeContact.getPhone());
+                            intent.putExtra(ContactsContract.Intents.Insert.COMPANY, contactExchangeContact.getCompany());
+                            intent.putExtra(ContactsContract.Intents.Insert.EMAIL, contactExchangeContact.getEmail());
+                            intent.putExtra(ContactsContract.Intents.Insert.JOB_TITLE, contactExchangeContact.getJobTitle());
+                            intent.putExtra(ContactsContract.Intents.Insert.IM_HANDLE, contactExchangeContact.getTwitter());
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create().show();
+            else
+                toast("Waiting for network to sync contact details");
+
         }
 
         @Override
@@ -532,16 +665,26 @@ public class SpaceActivity extends BaseActivity {
         }
 
         @Override
-        public void onContactExchangeContactLongClick(ContactExchangeContact contactExchangeContact) {
-            RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = getRealm().where(ContactExchangeContact.class)
-                    .equalTo("id", contactExchangeContact.getId())
-                    .findAll();
-            if (contactExchangeContactRealmResults.size() > 0) {
-                ContactExchangeContact c = contactExchangeContactRealmResults.first();
-                getRealm().beginTransaction();
-                c.setSynced(false);
-                getRealm().commitTransaction();
-            }
+        public void onContactExchangeContactLongClick(final ContactExchangeContact contactExchangeContact) {
+
+            new AlertDialog.Builder(SpaceActivity.this)
+                    .setTitle("Confirm")
+                    .setMessage("Are you sure you want to delete this contact?")
+                    .setPositiveButton("Yes, Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = getRealm().where(ContactExchangeContact.class)
+                                    .equalTo("id", contactExchangeContact.getId())
+                                    .findAll();
+                            if (contactExchangeContactRealmResults.size() > 0) {
+                                ContactExchangeContact c = contactExchangeContactRealmResults.first();
+                                ContactExchangeController.deleteContactExchangeContact(getRealm(), c);
+                            }
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .create()
+                    .show();
         }
     };
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,16 +14,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.alamkanak.weekview.MonthLoader;
-import com.alamkanak.weekview.WeekView;
-import com.alamkanak.weekview.WeekViewEvent;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.SessionController;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.helpers.utils.TimeUtils;
+import com.hasgeek.funnel.helpers.utils.ValueUtils;
 import com.hasgeek.funnel.model.Announcement;
+import com.hasgeek.funnel.model.Metadata;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
@@ -44,6 +44,14 @@ public class OverviewFragment extends BaseFragment {
     public static final String FRAGMENT_TAG = "OverviewFragment";
     private OverviewFragmentInteractionListener overviewFragmentInteractionListener;
     private String spaceId;
+    RecyclerView recyclerViewAnnouncements;
+    CardView discussionCardView;
+    CardView foodCourtCardView;
+    CardView liveStreamCardView;
+    CardView venueMapCardView;
+
+    Metadata metadata;
+
     public OverviewFragment() {
     }
 
@@ -74,13 +82,19 @@ public class OverviewFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_overview, container, false);
         Realm realm = Realm.getDefaultInstance();
 
-//        Button scheduleBtn = (Button)view.findViewById(R.id.btn_view_schedule);
-//        Button scanBadgeBtn = (Button)view.findViewById(R.id.btn_scan_badge);
         RecyclerView recyclerViewUpcomingSessions = (RecyclerView)view.findViewById(R.id.fragment_overview_recyclerview_upcoming);
-        RecyclerView recyclerViewAnnouncements = (RecyclerView)view.findViewById(R.id.fragment_overview_recyclerview_annoucements);
+        recyclerViewAnnouncements = (RecyclerView)view.findViewById(R.id.fragment_overview_recyclerview_annoucements);
 
 
-        recyclerViewUpcomingSessions.setLayoutManager(new LinearLayoutManager(getContext()));
+        discussionCardView = (CardView) view.findViewById(R.id.fragment_overview_discussion_cardview);
+
+        foodCourtCardView = (CardView) view.findViewById(R.id.fragment_overview_foodcourt_cardview);
+
+        liveStreamCardView = (CardView) view.findViewById(R.id.fragment_overview_livestream_cardview);
+
+        venueMapCardView = (CardView) view.findViewById(R.id.fragment_overview_venuemap_cardview);
+
+        recyclerViewUpcomingSessions.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         RealmResults<Session> allSessions = SessionController.getSessionsBySpaceId(realm, spaceId);
 
 
@@ -95,7 +109,9 @@ public class OverviewFragment extends BaseFragment {
                 break;
         }
 
-        recyclerViewUpcomingSessions.setAdapter(new UpnextRecyclerViewAdapter(sessions, new ItemInteractionListener<Session>() {
+        List<Session> allthesessions = realm.copyFromRealm(allSessions);
+
+        recyclerViewUpcomingSessions.setAdapter(new UpnextRecyclerViewAdapter(allthesessions, new ItemInteractionListener<Session>() {
             @Override
             public void onItemClick(View v, Session item) {
 
@@ -112,28 +128,12 @@ public class OverviewFragment extends BaseFragment {
         recyclerViewAnnouncements.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
 
-        List<Announcement> announcements = new ArrayList<>();
+        metadata = SpaceController.getSpaceMetadataBySpaceId(spaceId);
 
-        Announcement a1 = new Announcement();
-        a1.setTitle("Food!");
-        a1.setTime("8:00AM");
-        a1.setDescription("Please collect your food tokens from the registration desk. You will receive new food tokens tomorrow.");
-
-        Announcement a2 = new Announcement();
-        a2.setTitle("Wifi");
-        a2.setTime("9:00AM");
-        a2.setDescription("WiFi SSID: HasGeek \n Password: geeksrus");
-
-        Announcement a3 = new Announcement();
-        a3.setTitle("Flash Talks");
-        a3.setTime("11:00AM");
-        a3.setDescription("Please register for flash talks at the registration desk");
-
-        announcements.add(a1);
-        announcements.add(a2);
-        announcements.add(a3);
-
-        recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(announcements));
+        if (metadata != null)
+            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(metadata.getAnnouncements()));
+        else
+            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(new ArrayList<Announcement>()));
 
 //        scheduleBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -149,13 +149,70 @@ public class OverviewFragment extends BaseFragment {
 //            }
 //        });
 
+        refresh();
 
         return view;
     }
 
     @Override
     public void refresh() {
+        metadata = SpaceController.getSpaceMetadataBySpaceId(spaceId);
 
+        discussionCardView.setVisibility(View.INVISIBLE);
+        foodCourtCardView.setVisibility(View.INVISIBLE);
+        liveStreamCardView.setVisibility(View.INVISIBLE);
+        venueMapCardView.setVisibility(View.INVISIBLE);
+
+        if (metadata == null) {
+            return;
+        }
+
+        if (ValueUtils.isNotBlank(metadata.getDiscussionSlackDeeplink()) && ValueUtils.isNotBlank(metadata.getDiscussionSlackWeb()) ) {
+            discussionCardView.setVisibility(View.VISIBLE);
+            discussionCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    overviewFragmentInteractionListener.onDiscussionClick();
+                }
+            });
+        }
+
+        if (ValueUtils.isNotBlank(metadata.getLivestreamUrl())) {
+            liveStreamCardView.setVisibility(View.VISIBLE);
+            liveStreamCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    overviewFragmentInteractionListener.onLiveStreamClick();
+                }
+            });
+        }
+
+        if (ValueUtils.isNotBlank(metadata.getVenueMapUrl())) {
+            venueMapCardView.setVisibility(View.VISIBLE);
+            venueMapCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    overviewFragmentInteractionListener.onVenueMapClick();
+                }
+            });
+        }
+
+        if (metadata.getAnnouncements() != null) {
+            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(metadata.getAnnouncements()));
+        }
+
+        if (metadata.getFoodCourtVendors() !=null) {
+            if (metadata.getFoodCourtVendors().size()!=0) {
+                foodCourtCardView.setVisibility(View.VISIBLE);
+                foodCourtCardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        overviewFragmentInteractionListener.onFoodCourtClick();
+                    }
+                });
+            }
+
+        }
     }
 
     @Override
@@ -170,6 +227,10 @@ public class OverviewFragment extends BaseFragment {
     }
 
     public interface OverviewFragmentInteractionListener {
+        void onDiscussionClick();
+        void onFoodCourtClick();
+        void onLiveStreamClick();
+        void onVenueMapClick();
         void onScheduleClick();
         void onScanBadgeClick(View view);
         void onSessionClick(Session s);

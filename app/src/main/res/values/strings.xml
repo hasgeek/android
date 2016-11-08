@@ -11,4 +11,5 @@ This and more will be covered in a walkthrough of MySQL HA options and when you 
         <item>Saturday, 16 April</item>
         <item>Sunday, 17 April</item>
     </string-array>
+    <string name="title_activity_main">MainActivity</string>
 </resources>

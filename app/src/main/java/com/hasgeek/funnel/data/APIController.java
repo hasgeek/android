@@ -1,5 +1,7 @@
 package com.hasgeek.funnel.data;
 
+import android.util.Log;
+
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -8,6 +10,7 @@ import com.hasgeek.funnel.helpers.schedule.ScheduleHelper;
 import com.hasgeek.funnel.helpers.utils.AuthUtils;
 import com.hasgeek.funnel.model.Attendee;
 import com.hasgeek.funnel.model.ContactExchangeContact;
+import com.hasgeek.funnel.model.Metadata;
 import com.hasgeek.funnel.model.Proposal;
 import com.hasgeek.funnel.model.Session;
 import com.hasgeek.funnel.model.Space;
@@ -282,15 +285,49 @@ public class APIController {
 
                     Response response = client.newCall(request).execute();
 
-
                     JSONObject jsonObject = new JSONObject(response.body().string());
 
                     ContactExchangeContact contact = gson.fromJson(jsonObject.getString("participant"), ContactExchangeContact.class);
+
+                    contact.setKey(contactExchangeContact.getKey());
+                    contact.setPuk(contactExchangeContact.getPuk());
 
                     subscriber.onNext(contact);
 
                     subscriber.onCompleted();
 
+                } catch (Exception e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
+    }
+
+
+    public Observable<Metadata> getMetadataForSpaceId(final String spaceId) {
+        return Observable.create(new Observable.OnSubscribe<Metadata>() {
+            @Override
+            public void call(Subscriber<? super Metadata> subscriber) {
+                try {
+
+                    Gson gson = new GsonBuilder().create();
+                    OkHttpClient client = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            //.url("http://192.168.42.11:4000/api/space/"+spaceId+"/metadata")
+                            .url("https://hasgeek.github.io/api/space/"+spaceId+"/metadata")
+                            .build();
+
+                    Response response = client.newCall(request).execute();
+
+                    String jsonResponse = response.body().string();
+
+
+                    Metadata metadata = gson.fromJson(jsonResponse, Metadata.class);
+
+                    SpaceController.saveSpaceMetadataJSONBySpaceId(spaceId, jsonResponse);
+
+                    subscriber.onNext(metadata);
+                    subscriber.onCompleted();
                 } catch (Exception e) {
                     subscriber.onError(e);
                 }

@@ -112,7 +112,7 @@ public class ContactExchangeController {
     }
 
     public static List<ContactExchangeContact> getUnsyncedContactExchangeContactsBySpaceId_Cold(Realm realm, String spaceId) {
-        RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = getContactExchangeContactsBySpaceId_Hot(realm, spaceId);
+        RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = getContactExchangeContactsBySpaceId_Hot(realm, spaceId).where().equalTo("synced", false).findAll();
 
         if (contactExchangeContactRealmResults.size() != 0)
             return realm.copyFromRealm(contactExchangeContactRealmResults);
@@ -142,6 +142,22 @@ public class ContactExchangeController {
     }
 
 
+    public static void deleteContactExchangeContact(Realm realm, ContactExchangeContact contactExchangeContact) {
+        realm.beginTransaction();
+        try {
+            realm.copyToRealm(contactExchangeContact).deleteFromRealm();
+        } catch (Exception e) {
+            try {
+                contactExchangeContact.deleteFromRealm();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        realm.commitTransaction();
+    }
+
+
     public static String getContactExchangeContactsAsCSVStringFromSpaceId(Realm realm, String spaceId) {
         RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = realm.where(ContactExchangeContact.class)
                 .equalTo("space.id", spaceId)
@@ -167,5 +183,7 @@ public class ContactExchangeController {
 
         return data.toString();
     }
+
+
 
 }
