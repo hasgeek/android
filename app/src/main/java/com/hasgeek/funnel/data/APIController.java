@@ -313,7 +313,7 @@ public class APIController {
                     Gson gson = new GsonBuilder().create();
                     OkHttpClient client = new OkHttpClient();
                     Request request = new Request.Builder()
-                            //.url("http://192.168.42.11:4000/api/space/"+spaceId+"/metadata")
+                            //.url("http://172.16.27.58:4000/api/space/"+spaceId+"/metadata")
                             .url("https://hasgeek.github.io/api/space/"+spaceId+"/metadata")
                             .build();
 

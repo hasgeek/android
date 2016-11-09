@@ -1,18 +1,13 @@
 package com.hasgeek.funnel.space.fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -26,18 +21,13 @@ import com.hasgeek.funnel.helpers.utils.ValueUtils;
 import com.hasgeek.funnel.model.Announcement;
 import com.hasgeek.funnel.model.Metadata;
 import com.hasgeek.funnel.model.Session;
-import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 public class OverviewFragment extends BaseFragment {
@@ -136,9 +126,29 @@ public class OverviewFragment extends BaseFragment {
         metadata = SpaceController.getSpaceMetadataBySpaceId(spaceId);
 
         if (metadata != null)
-            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(metadata.getAnnouncements()));
+            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(metadata.getAnnouncements(), new ItemInteractionListener<Announcement>() {
+                @Override
+                public void onItemClick(View v, Announcement item) {
+                    overviewFragmentInteractionListener.onAnnouncementClick(item);
+                }
+
+                @Override
+                public void onItemLongClick(View v, Announcement item) {
+
+                }
+            }));
         else
-            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(new ArrayList<Announcement>()));
+            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(new ArrayList<Announcement>(), new ItemInteractionListener<Announcement>() {
+                @Override
+                public void onItemClick(View v, Announcement item) {
+                    overviewFragmentInteractionListener.onAnnouncementClick(item);
+                }
+
+                @Override
+                public void onItemLongClick(View v, Announcement item) {
+
+                }
+            }));
 
 //        scheduleBtn.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -203,7 +213,17 @@ public class OverviewFragment extends BaseFragment {
         }
 
         if (metadata.getAnnouncements() != null) {
-            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(metadata.getAnnouncements()));
+            recyclerViewAnnouncements.setAdapter(new AnnouncementsRecyclerViewAdapter(metadata.getAnnouncements(), new ItemInteractionListener<Announcement>() {
+                @Override
+                public void onItemClick(View v, Announcement item) {
+                    overviewFragmentInteractionListener.onAnnouncementClick(item);
+                }
+
+                @Override
+                public void onItemLongClick(View v, Announcement item) {
+
+                }
+            }));
         }
 
         if (metadata.getFoodCourtVendors() !=null) {
@@ -232,6 +252,7 @@ public class OverviewFragment extends BaseFragment {
     }
 
     public interface OverviewFragmentInteractionListener {
+        void onAnnouncementClick(Announcement announcement);
         void onDiscussionClick();
         void onFoodCourtClick();
         void onLiveStreamClick();

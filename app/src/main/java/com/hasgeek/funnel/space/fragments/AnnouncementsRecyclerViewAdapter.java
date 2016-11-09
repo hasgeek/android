@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.DeviceController;
+import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
+import com.hasgeek.funnel.helpers.utils.ValueUtils;
 import com.hasgeek.funnel.model.Announcement;
 
 import java.util.List;
@@ -17,9 +19,11 @@ public class AnnouncementsRecyclerViewAdapter extends RecyclerView.Adapter<Annou
 
 
     private List<Announcement> data;
+    private ItemInteractionListener<Announcement> announcementItemInteractionListener;
 
-    public AnnouncementsRecyclerViewAdapter(List<Announcement> data) {
+    public AnnouncementsRecyclerViewAdapter(List<Announcement> data, ItemInteractionListener<Announcement> announcementItemInteractionListener) {
         this.data = data;
+        this.announcementItemInteractionListener = announcementItemInteractionListener;
     }
 
     @Override
@@ -40,8 +44,17 @@ public class AnnouncementsRecyclerViewAdapter extends RecyclerView.Adapter<Annou
     @Override
     public void onBindViewHolder(final AnnouncementViewHolder holder, int position) {
 
-        Announcement a = data.get(position);
+        final Announcement a = data.get(position);
         holder.mItem = a;
+        if (ValueUtils.isNotBlank(a.getUrl())) {
+            holder.mView.setClickable(true);
+            holder.mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    announcementItemInteractionListener.onItemClick(view, a);
+                }
+            });
+        }
         holder.tv_description.setText(a.getDescription());
         holder.tv_time.setText(a.getTime());
         holder.tv_title.setText(a.getTitle());

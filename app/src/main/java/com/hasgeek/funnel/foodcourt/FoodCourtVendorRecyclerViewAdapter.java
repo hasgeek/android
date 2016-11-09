@@ -34,6 +34,7 @@ public class FoodCourtVendorRecyclerViewAdapter extends SimpleSectionedAdapter<F
         this.sections = sections;
     }
 
+
     @Override
     protected String getSectionHeaderTitle(int section) {
         return sections.get(section);

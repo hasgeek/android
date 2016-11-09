@@ -39,6 +39,8 @@ import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.helpers.providers.CSVProvider;
 import com.hasgeek.funnel.helpers.utils.PackageUtils;
+import com.hasgeek.funnel.helpers.utils.ValueUtils;
+import com.hasgeek.funnel.model.Announcement;
 import com.hasgeek.funnel.model.Attendee;
 import com.hasgeek.funnel.model.ContactExchangeContact;
 import com.hasgeek.funnel.model.Metadata;
@@ -191,6 +193,7 @@ public class SpaceActivity extends BaseActivity {
     }
 
     void fetchMetadata() {
+        metadata_Cold = SpaceController.getSpaceMetadataBySpaceId(space_Cold.getId());
         APIController.getService().getMetadataForSpaceId(space_Cold.getId())
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
@@ -240,7 +243,7 @@ public class SpaceActivity extends BaseActivity {
 
         getSupportActionBar().setTitle(space_Cold.getTitle());
         getSupportActionBar().setSubtitle(space_Cold.getDatelocation());
-        getSupportActionBar().setIcon(R.drawable.ic_droidcon);
+        getSupportActionBar().setIcon(R.drawable.ic_droidcon_logo);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setVisibility(View.GONE);
@@ -521,6 +524,22 @@ public class SpaceActivity extends BaseActivity {
 
     OverviewFragment.OverviewFragmentInteractionListener overviewFragmentInteractionListener = new OverviewFragment.OverviewFragmentInteractionListener() {
 
+        @Override
+        public void onAnnouncementClick(Announcement announcement) {
+            if (ValueUtils.isNotBlank(announcement.getUrl())) {
+
+                Answers.getInstance().logContentView(new ContentViewEvent()
+                        .putContentName(announcement.getTitle())
+                        .putContentType("Announcement")
+                        .putContentId(announcement.getUrl()));
+
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
+                        .setToolbarColor(ContextCompat.getColor(SpaceActivity.this, R.color.colorPrimary));
+
+                CustomTabsIntent customTabsIntent = builder.build();
+                customTabsIntent.launchUrl(SpaceActivity.this, Uri.parse(announcement.getUrl()));
+            }
+        }
 
         @Override
         public void onDiscussionClick() {
