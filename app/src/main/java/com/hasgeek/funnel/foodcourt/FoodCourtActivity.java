@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.hasgeek.funnel.R;
 import com.hasgeek.funnel.data.SpaceController;
 import com.hasgeek.funnel.helpers.BaseActivity;
@@ -93,6 +95,17 @@ public class FoodCourtActivity extends BaseActivity {
         FoodCourtVendorPagerAdapter foodCourtVendorPagerAdapter = new FoodCourtVendorPagerAdapter(FoodCourtActivity.this, metadata_Cold.getFoodCourtVendors());
 
         viewPager.setAdapter(foodCourtVendorPagerAdapter);
+        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                Answers.getInstance().logContentView(new ContentViewEvent()
+                        .putContentName(metadata_Cold.getFoodCourtVendors().get(position).getTitle())
+                        .putContentType("Food court vendor view")
+                        .putContentId(metadata_Cold.getFoodCourtVendors().get(position).getTitle()));
+                super.onPageSelected(position);
+            }
+        });
+
 
         tabLayout.setupWithViewPager(viewPager);
         initViews(savedInstanceState);
