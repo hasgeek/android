@@ -74,10 +74,8 @@ public class FoodCourtVendorRecyclerViewAdapter extends SimpleSectionedAdapter<F
             holder.tv_title.setTextColor(Color.parseColor("#008400"));
         } else if (type.equals("Non-veg")) {
             holder.tv_title.setTextColor(Color.parseColor("#954222"));
-        } else if (type.equals("Beverage")) {
-            holder.tv_title.setTextColor(Color.DKGRAY);
         } else {
-            holder.tv_title.setTextColor(Color.LTGRAY);
+            holder.tv_title.setTextColor(Color.DKGRAY);
         }
 
         holder.tv_type.setText(type);
