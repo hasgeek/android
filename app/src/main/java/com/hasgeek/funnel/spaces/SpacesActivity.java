@@ -146,7 +146,7 @@ public class SpacesActivity extends BaseActivity {
 
     void goToDroidcon() {
 
-        Space droidcon = SpaceController.getSpaceById_Hot(getRealm(), "84");
+        Space droidcon = SpaceController.getSpaceById_Hot(getRealm(), "97");
         if (droidcon != null) {
             skip = true;
             goToSpace(droidcon);

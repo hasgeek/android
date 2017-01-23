@@ -43,7 +43,7 @@ public class ScheduleHelper {
 
 
         Log.i("ScheduleHelper", "Device Density -> "+ DeviceController.getDeviceScaledDensity());
-        int MIN_SESSION_HEIGHT = (int) (150 * DeviceController.getDeviceScaledDensity());
+        int MIN_SESSION_HEIGHT = (int) (200 * DeviceController.getDeviceScaledDensity());
         int SEGMENT_HEIGHT = (int) (5 * DeviceController.getDeviceScaledDensity());
         int maxHeight = 0;
 

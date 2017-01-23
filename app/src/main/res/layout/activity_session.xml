@@ -137,6 +137,7 @@
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end"
         android:src="@drawable/ic_done"
+        android:visibility="invisible"
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"/>
 
