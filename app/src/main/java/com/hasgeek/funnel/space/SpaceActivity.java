@@ -243,7 +243,7 @@ public class SpaceActivity extends BaseActivity {
 
         getSupportActionBar().setTitle(space_Cold.getTitle());
         getSupportActionBar().setSubtitle(space_Cold.getDatelocation());
-        getSupportActionBar().setIcon(R.drawable.ic_50p_logo);
+        //getSupportActionBar().setIcon(R.drawable.ic_50p_logo);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setVisibility(View.GONE);

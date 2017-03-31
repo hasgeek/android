@@ -85,10 +85,12 @@ public class ScheduleFragment extends BaseFragment {
             int mul;
             if (s.getRoom() == null) {
                 mul = 0;
-            } else if (s.getRoom().contains("audi")) {
+            } else if (s.getRoom().contains("banq")) {
                 mul = 0;
-            } else {
+            } else if (s.getRoom().contains("awn")) {
                 mul = 1;
+            } else {
+                mul = 2;
             }
 
             int sessionWidth = trackWidth;
@@ -145,14 +147,17 @@ public class ScheduleFragment extends BaseFragment {
 
         if(s.getRoom()==null) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Main Auditorium");
-        } else if(s.getRoom().contains("audi")) {
+            location.setText("Banquet Hall");
+        } else if(s.getRoom().contains("banq")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Main Auditorium");
+            location.setText("Banquet Hall");
+        } else if(s.getRoom().contains("awn")) {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
+            location.setText("Lawn");
         }
         else {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
-            location.setText("Banquet Hall");
+            location.setText("Tree Shade");
         }
 
         if (s.getIsBreak()) {
