@@ -85,10 +85,12 @@ public class ScheduleFragment extends BaseFragment {
             int mul;
             if (s.getRoom() == null) {
                 mul = 0;
-            } else if (s.getRoom().contains("banq")) {
+            } else if (s.getRoom().contains("root")) {
                 mul = 0;
-            } else if (s.getRoom().contains("awn")) {
+            } else if (s.getRoom().contains("banq")) {
                 mul = 1;
+            } else if (s.getRoom().contains("otr")) {
+                mul = 2;
             } else {
                 mul = 2;
             }
@@ -147,17 +149,17 @@ public class ScheduleFragment extends BaseFragment {
 
         if(s.getRoom()==null) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Banquet Hall");
+            location.setText("");
         } else if(s.getRoom().contains("banq")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Banquet Hall");
-        } else if(s.getRoom().contains("awn")) {
+            location.setText("Banquet hall - DevConf.in");
+        } else if(s.getRoom().contains("otr")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Lawn");
+            location.setText("Porch on first floor, opposite the auditorium – OTR sessions");
         }
         else {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
-            location.setText("Tree Shade");
+            location.setText("Auditorium – Rootconf");
         }
 
         if (s.getIsBreak()) {

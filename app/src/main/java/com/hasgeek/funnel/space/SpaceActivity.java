@@ -38,6 +38,7 @@ import com.hasgeek.funnel.data.APIController;
 import com.hasgeek.funnel.helpers.BaseFragment;
 import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.helpers.providers.CSVProvider;
+import com.hasgeek.funnel.helpers.schedule.ScheduleHelper;
 import com.hasgeek.funnel.helpers.utils.PackageUtils;
 import com.hasgeek.funnel.helpers.utils.ValueUtils;
 import com.hasgeek.funnel.model.Announcement;
@@ -56,12 +57,15 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 public class SpaceActivity extends BaseActivity {
@@ -112,11 +116,33 @@ public class SpaceActivity extends BaseActivity {
     }
 
     void fetchSessions() {
-        APIController.getService().getSessionsBySpaceId(space_Cold.getId())
+
+        Observable<List<Session>> rootconfSessions = APIController.getService().getSessionsBySpaceId(space_Cold.getId())
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<Session>>() {
+                .observeOn(AndroidSchedulers.mainThread());
+
+        Observable<List<Session>> devConfSessions = APIController.getService().getSessionsBySpaceId("121")
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        Observable.zip(rootconfSessions, devConfSessions,
+                new Func2<List<Session>, List<Session>, List<Session>>() {
+                    @Override
+                    public List<Session> call(List<Session> rootconfSessions, List<Session> devConfSessions) {
+
+                        le("Sessions are "+rootconfSessions.size()+" and "+devConfSessions.size()+" in number.");
+                        List<Session> sessions = new ArrayList<Session>();
+                        for(Session s: devConfSessions) {
+                            s.setSpace(space_Cold);
+                        }
+                        sessions.addAll(rootconfSessions);
+                        sessions.addAll(devConfSessions);
+                        return sessions;
+                    }
+                }
+                ).subscribe(new Subscriber<List<Session>>() {
                     @Override
                     public void onCompleted() {
                     }
@@ -128,11 +154,21 @@ public class SpaceActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<Session> sessions) {
-                        Realm realm = Realm.getDefaultInstance();
-                        SessionController.deleteSessionsBySpaceId(realm, space_Cold.getId());
-                        SessionController.saveSessions(realm, sessions);
-                        realm.close();
-                        l("Saved "+sessions.size()+" sessions for "+space_Cold.getTitle());
+
+                        try {
+                            HashMap<Integer, List<Session>> hashMap = ScheduleHelper.getDayOfYearMapFromSessions(sessions);
+                            for (Integer key : hashMap.keySet()) {
+                                ScheduleHelper.addDimensToSessions(hashMap.get(key));
+                            }
+
+                            Realm realm = Realm.getDefaultInstance();
+                            SessionController.deleteSessionsBySpaceId(realm, space_Cold.getId());
+                            SessionController.saveSessions(realm, sessions);
+                            realm.close();
+                            l("Saved " + sessions.size() + " sessions for " + space_Cold.getTitle());
+                        } catch (Exception c) {
+                            c.printStackTrace();
+                        }
                     }
                 });
     }

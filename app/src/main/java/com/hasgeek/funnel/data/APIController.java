@@ -158,11 +158,6 @@ public class APIController {
                         s.setSpace(space);
                     }
 
-                    HashMap<Integer, List<Session>> hashMap = ScheduleHelper.getDayOfYearMapFromSessions(sessions);
-                    for (Integer key : hashMap.keySet()) {
-                        ScheduleHelper.addDimensToSessions(hashMap.get(key));
-                    }
-
                     subscriber.onNext(sessions);
                     subscriber.onCompleted();
 

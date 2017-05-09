@@ -29,6 +29,7 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import com.karumi.dexter.listener.single.SnackbarOnDeniedPermissionListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
@@ -150,37 +151,63 @@ public class ScannerActivity extends BaseActivity implements ZBarScannerView.Res
 
         final String data = result.getContents();
 
-
         if (ContactExchangeUtils.isValidCode(data)) {
             String puk = ContactExchangeUtils.getPukFromCode(data);
             String key = ContactExchangeUtils.getKeyFromCode(data);
+            l("Hello: "+puk);
+
+            List<String> trouble = new ArrayList<>();
+            trouble.add("Error: Out of cheese");
+            trouble.add("End of universe barcode. Please don't scan again");
+            trouble.add("Error: Contact too cranky");
+            trouble.add("What do you get when you multiply six by nine?");
+
+            Collections.shuffle(trouble);
 
             final ContactExchangeContact contactExchangeContact = ContactExchangeController.getContactExchangeContactFromPukAndKeyAndSpaceId_Hot(realm, puk, key, space_Cold.getId());
 
             if (contactExchangeContact != null) {
                 zBarScannerView.stopCameraPreview();
-                new AlertDialog.Builder(ScannerActivity.this)
-                        .setTitle("Add "+contactExchangeContact.getFullname()+" ?")
-                        .setMessage(""+contactExchangeContact.getJobTitle()+"\n"+contactExchangeContact.getCompany())
-                        .setCancelable(false)
-                        .setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ContactExchangeController.addContactExchangeContact(getRealm(), contactExchangeContact);
-                                syncContactExchangeContacts();
 
-                                Answers.getInstance().logCustom(new CustomEvent("Scanned Contact"));
+                if (contactExchangeContact.getPuk().equals("BkUQThgw")) {
+                    zBarScannerView.stopCameraPreview();
+                    new AlertDialog.Builder(ScannerActivity.this)
+                            .setTitle("??")
+                            .setMessage(trouble.get(0))
+                            .setCancelable(false)
+                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    zBarScannerView.resumeCameraPreview(ScannerActivity.this);
+                                }
+                            })
+                            .create().show();
+                }
 
-                                zBarScannerView.resumeCameraPreview(ScannerActivity.this);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                zBarScannerView.resumeCameraPreview(ScannerActivity.this);
-                            }
-                        })
-                        .create().show();
+                else {
+                    new AlertDialog.Builder(ScannerActivity.this)
+                            .setTitle("Add "+contactExchangeContact.getFullname()+" ?")
+                            .setMessage(""+contactExchangeContact.getJobTitle()+"\n"+contactExchangeContact.getCompany())
+                            .setCancelable(false)
+                            .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ContactExchangeController.addContactExchangeContact(getRealm(), contactExchangeContact);
+                                    syncContactExchangeContacts();
+
+                                    Answers.getInstance().logCustom(new CustomEvent("Scanned Contact"));
+
+                                    zBarScannerView.resumeCameraPreview(ScannerActivity.this);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    zBarScannerView.resumeCameraPreview(ScannerActivity.this);
+                                }
+                            })
+                            .create().show();
+                }
             }
             else
                 Toast.makeText(ScannerActivity.this, "Not found. Are you sure you are in the right event?",

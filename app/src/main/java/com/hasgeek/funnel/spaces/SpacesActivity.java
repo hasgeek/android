@@ -130,9 +130,7 @@ public class SpacesActivity extends BaseActivity {
             }
 
             @Override
-            public void onItemLongClick(View v, Space item) {
-
-            }
+            public void onItemLongClick(View v, Space item) {   }
 
         }));
     }
@@ -146,7 +144,7 @@ public class SpacesActivity extends BaseActivity {
 
     void goToDroidcon() {
 
-        Space droidcon = SpaceController.getSpaceById_Hot(getRealm(), "110");
+        Space droidcon = SpaceController.getSpaceById_Hot(getRealm(), "102");
         if (droidcon != null) {
             skip = true;
             goToSpace(droidcon);
