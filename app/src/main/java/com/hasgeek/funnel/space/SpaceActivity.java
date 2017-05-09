@@ -582,7 +582,7 @@ public class SpaceActivity extends BaseActivity {
 
             new AlertDialog.Builder(SpaceActivity.this)
                     .setTitle("Join the discussion!")
-                    .setMessage("Are you on the Friends of HasGeek Slack team? Follow the discussion on the #droidcon channel")
+                    .setMessage("Are you on the Friends of HasGeek Slack team? Follow the discussion on the #rootconf channel")
                     .setCancelable(true)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
