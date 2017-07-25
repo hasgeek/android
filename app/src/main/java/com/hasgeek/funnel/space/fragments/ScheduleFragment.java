@@ -85,11 +85,11 @@ public class ScheduleFragment extends BaseFragment {
             int mul;
             if (s.getRoom() == null) {
                 mul = 0;
-            } else if (s.getRoom().contains("root")) {
+            } else if (s.getRoom().contains("audi")) {
                 mul = 0;
             } else if (s.getRoom().contains("banq")) {
                 mul = 1;
-            } else if (s.getRoom().contains("otr")) {
+            } else if (s.getRoom().contains("room")) {
                 mul = 2;
             } else {
                 mul = 2;
@@ -134,7 +134,14 @@ public class ScheduleFragment extends BaseFragment {
         TextView starttime = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_starttime);
         TextView endtime = (TextView) linearLayout.findViewById(R.id.fragment_schedule_item_endtime);
 
-        title.setText(s.getTitle());
+        title.setText(s.getTitle()
+                + " ("
+                + TimeUtils.getTimeDifferenceInMinutes(
+                    TimeUtils.getCalendarFromISODateString(s.getEnd()),
+                    TimeUtils.getCalendarFromISODateString(s.getStart())
+                )
+                + " mins)"
+        );
 
         String speakerText = s.getSpeaker();
 
@@ -152,14 +159,14 @@ public class ScheduleFragment extends BaseFragment {
             location.setText("");
         } else if(s.getRoom().contains("banq")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Banquet hall - DevConf.in");
-        } else if(s.getRoom().contains("otr")) {
+            location.setText("Banquet hall");
+        } else if(s.getRoom().contains("room")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Porch on first floor, opposite the auditorium – OTR sessions");
+            location.setText("Meeting Room 1");
         }
         else {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
-            location.setText("Auditorium – Rootconf");
+            location.setText("Main Auditorium");
         }
 
         if (s.getIsBreak()) {

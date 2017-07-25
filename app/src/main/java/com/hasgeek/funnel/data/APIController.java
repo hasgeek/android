@@ -153,9 +153,15 @@ public class APIController {
                             sessions.addAll(Arrays.asList(gson.fromJson(slots.getJSONObject(k).optString("sessions", "[]"), Session[].class)));
                         }
                     }
-//
+
                     for (Session s : sessions) {
                         s.setSpace(space);
+                    }
+
+                    HashMap<Integer, List<Session>> hashMap = ScheduleHelper.getDayOfYearMapFromSessions(sessions);
+
+                    for (Integer key : hashMap.keySet()) {
+                        ScheduleHelper.addDimensToSessions(hashMap.get(key));
                     }
 
                     subscriber.onNext(sessions);

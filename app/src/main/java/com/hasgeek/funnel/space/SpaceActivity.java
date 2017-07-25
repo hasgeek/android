@@ -117,32 +117,11 @@ public class SpaceActivity extends BaseActivity {
 
     void fetchSessions() {
 
-        Observable<List<Session>> rootconfSessions = APIController.getService().getSessionsBySpaceId(space_Cold.getId())
+        APIController.getService().getSessionsBySpaceId(space_Cold.getId())
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread());
-
-        Observable<List<Session>> devConfSessions = APIController.getService().getSessionsBySpaceId("121")
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread());
-
-        Observable.zip(rootconfSessions, devConfSessions,
-                new Func2<List<Session>, List<Session>, List<Session>>() {
-                    @Override
-                    public List<Session> call(List<Session> rootconfSessions, List<Session> devConfSessions) {
-
-                        le("Sessions are "+rootconfSessions.size()+" and "+devConfSessions.size()+" in number.");
-                        List<Session> sessions = new ArrayList<Session>();
-                        for(Session s: devConfSessions) {
-                            s.setSpace(space_Cold);
-                        }
-                        sessions.addAll(rootconfSessions);
-                        sessions.addAll(devConfSessions);
-                        return sessions;
-                    }
-                }
-                ).subscribe(new Subscriber<List<Session>>() {
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<Session>>() {
                     @Override
                     public void onCompleted() {
                     }
@@ -156,10 +135,6 @@ public class SpaceActivity extends BaseActivity {
                     public void onNext(List<Session> sessions) {
 
                         try {
-                            HashMap<Integer, List<Session>> hashMap = ScheduleHelper.getDayOfYearMapFromSessions(sessions);
-                            for (Integer key : hashMap.keySet()) {
-                                ScheduleHelper.addDimensToSessions(hashMap.get(key));
-                            }
 
                             Realm realm = Realm.getDefaultInstance();
                             SessionController.deleteSessionsBySpaceId(realm, space_Cold.getId());
