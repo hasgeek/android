@@ -7,6 +7,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 /**
  * Author: @karthikb351
@@ -18,7 +19,7 @@ public class SessionController {
     public static RealmResults<Session> getSessionsBySpaceId(Realm realm, String id) {
         return realm.where(Session.class)
                 .equalTo("space.id", id)
-                .findAll();
+                .findAllSorted("start", Sort.ASCENDING);
     }
 
     public static Session getSessionById_Cold(Realm realm, String id) {
