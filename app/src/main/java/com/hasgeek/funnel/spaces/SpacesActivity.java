@@ -19,6 +19,7 @@ import com.hasgeek.funnel.helpers.interactions.ItemInteractionListener;
 import com.hasgeek.funnel.model.Space;
 import com.hasgeek.funnel.space.SpaceActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -83,8 +84,8 @@ public class SpacesActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Space> spaces) {
                         linearLayout.setVisibility(View.GONE);
-                        if (!skip)
-                            goToDroidcon();
+                        if (!skip) {}
+//                            goToDroidcon();
                     }
                 });
     }
@@ -113,10 +114,9 @@ public class SpacesActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         RealmResults<Space> spaces = DataManager.getAllSpaces(getRealm());
-
         if (spaces.size() != 0) {
             linearLayout.setVisibility(View.GONE);
-            goToDroidcon();
+//            goToDroidcon();
 
         }
 

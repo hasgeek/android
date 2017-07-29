@@ -175,6 +175,10 @@ public class APIController {
     }
 
     public Observable<List<Attendee>> getAttendeesBySpaceId(String spaceId) {
+
+        if (spaceId.equals("117"))
+            spaceId = "116";
+
         final Space space = SpaceController.getSpaceById_Cold(Realm.getDefaultInstance(), spaceId);
 
         return Observable.create(new Observable.OnSubscribe<List<Attendee>>() {

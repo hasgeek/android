@@ -18,6 +18,8 @@ public class ContactExchangeController {
 
 
     public static RealmResults<Attendee> getAttendeesBySpaceId_Hot(Realm realm, String spaceId) {
+        if (spaceId.equals("117"))
+            spaceId = "116";
         return realm.where(Attendee.class)
                 .equalTo("space.id", spaceId)
                 .findAll();
@@ -34,6 +36,8 @@ public class ContactExchangeController {
 
 
     public static Attendee getAttendeeBySpaceIdAndPuk_Hot(Realm realm, String spaceId, String puk) {
+        if (spaceId.equals("117"))
+            spaceId = "116";
         return realm.where(Attendee.class)
                 .equalTo("space.id", spaceId)
                 .equalTo("puk", puk)
@@ -50,6 +54,8 @@ public class ContactExchangeController {
     }
 
     public static void deleteAndSaveAttendeesBySpaceId(Realm realm, String spaceId, List<Attendee> attendeeList) {
+        if (spaceId.equals("117"))
+            spaceId = "116";
         realm.beginTransaction();
         realm.where(Attendee.class)
                 .equalTo("space.id", spaceId)
@@ -60,6 +66,8 @@ public class ContactExchangeController {
     }
 
     public static void deleteAttendeesBySpaceId(Realm realm, String spaceId) {
+        if (spaceId.equals("117"))
+            spaceId = "116";
         realm.beginTransaction();
         realm.where(Attendee.class)
                 .equalTo("space.id", spaceId)
@@ -75,6 +83,8 @@ public class ContactExchangeController {
     }
 
     public static RealmResults<ContactExchangeContact> getContactExchangeContactsBySpaceId_Hot(Realm realm, String spaceId) {
+        if (spaceId.equals("117"))
+            spaceId = "116";
         return realm.where(ContactExchangeContact.class)
                 .equalTo("space.id", spaceId)
                 .findAll();
@@ -122,6 +132,8 @@ public class ContactExchangeController {
 
 
     public static ContactExchangeContact getContactExchangeContactFromPukAndKeyAndSpaceId_Hot(Realm realm, String puk, String key, String spaceId) {
+        if (spaceId.equals("117"))
+            spaceId = "116";
         Attendee a = realm.where(Attendee.class)
                 .equalTo("space.id", spaceId)
                 .equalTo("puk", puk)
@@ -159,6 +171,8 @@ public class ContactExchangeController {
 
 
     public static String getContactExchangeContactsAsCSVStringFromSpaceId(Realm realm, String spaceId) {
+        if (spaceId.equals("117"))
+            spaceId = "116";
         RealmResults<ContactExchangeContact> contactExchangeContactRealmResults = realm.where(ContactExchangeContact.class)
                 .equalTo("space.id", spaceId)
                 .equalTo("synced", true)
