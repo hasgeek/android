@@ -85,12 +85,10 @@ public class ScheduleFragment extends BaseFragment {
             int mul;
             if (s.getRoom() == null) {
                 mul = 0;
-            } else if (s.getRoom().contains("audi")) {
+            } else if (s.getRoom().contains("sumant")) {
                 mul = 0;
-            } else if (s.getRoom().contains("banq")) {
+            } else if (s.getRoom().contains("navalmal")) {
                 mul = 1;
-            } else if (s.getRoom().contains("room")) {
-                mul = 2;
             } else {
                 mul = 2;
             }
@@ -157,16 +155,16 @@ public class ScheduleFragment extends BaseFragment {
         if(s.getRoom()==null) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
             location.setText("");
-        } else if(s.getRoom().contains("banq")) {
+        } else if(s.getRoom().contains("sumant")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Banquet hall");
-        } else if(s.getRoom().contains("room")) {
+            location.setText("Sumant Moolgaokar Auditorium, Ground Floor");
+        } else if(s.getRoom().contains("navamal")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Meeting Room 1");
+            location.setText("Navalmal Firodia Hall, 5th floor");
         }
         else {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
-            location.setText("Main Auditorium");
+            location.setText("Navalmal Firodia Hall, 5th floor");
         }
 
         if (s.getIsBreak()) {

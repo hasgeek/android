@@ -25,6 +25,7 @@ import java.util.List;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmModel;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -84,8 +85,9 @@ public class SpacesActivity extends BaseActivity {
                     @Override
                     public void onNext(List<Space> spaces) {
                         linearLayout.setVisibility(View.GONE);
-                        if (!skip) {}
-//                            goToDroidcon();
+                        if (!skip) {
+                            goToDefaultSpace();
+                        }
                     }
                 });
     }
@@ -116,7 +118,7 @@ public class SpacesActivity extends BaseActivity {
         RealmResults<Space> spaces = DataManager.getAllSpaces(getRealm());
         if (spaces.size() != 0) {
             linearLayout.setVisibility(View.GONE);
-//            goToDroidcon();
+            goToDefaultSpace();
 
         }
 
@@ -142,12 +144,12 @@ public class SpacesActivity extends BaseActivity {
         context.startActivity(intent);
     }
 
-    void goToDroidcon() {
+    void goToDefaultSpace() {
 
-        Space droidcon = SpaceController.getSpaceById_Hot(getRealm(), "117");
-        if (droidcon != null) {
+        Space defaultSpace = SpaceController.getSpaceById_Hot(getRealm(), "148");
+        if (defaultSpace != null) {
             skip = true;
-            goToSpace(droidcon);
+            goToSpace(defaultSpace);
             finish();
         }
 
