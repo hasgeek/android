@@ -83,14 +83,19 @@ public class ScheduleFragment extends BaseFragment {
             LinearLayout linearLayout = getScheduleViewForSession(inflater, relativeLayout, s);
 
             int mul;
-            if (s.getRoom() == null) {
+
+            if(s.getRoom()==null) {
                 mul = 0;
-            } else if (s.getRoom().contains("sumant")) {
+            } else if(s.getRoom().contains("auditorium-2")) {
                 mul = 0;
-            } else if (s.getRoom().contains("navalmal")) {
+            } else if(s.getRoom().contains("auditorium-3")) {
                 mul = 1;
-            } else {
+            } else if(s.getRoom().contains("room-1")) {
                 mul = 2;
+            } else if(s.getRoom().contains("room-2")) {
+                mul = 3;
+            } else {
+                mul = 0;
             }
 
             int sessionWidth = trackWidth;
@@ -155,16 +160,22 @@ public class ScheduleFragment extends BaseFragment {
         if(s.getRoom()==null) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
             location.setText("");
-        } else if(s.getRoom().contains("sumant")) {
+        } else if(s.getRoom().contains("auditorium-2")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Sumant Moolgaokar Auditorium, Ground Floor");
-        } else if(s.getRoom().contains("navamal")) {
+            location.setText("Auditorium 2");
+        } else if(s.getRoom().contains("auditorium-3")) {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
+            location.setText("Auditorium 3");
+        } else if(s.getRoom().contains("room-1")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
-            location.setText("Navalmal Firodia Hall, 5th floor");
+            location.setText("Room 1");
+        } else if(s.getRoom().contains("room-2")) {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
+            location.setText("Room 2");
         }
         else {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
-            location.setText("Navalmal Firodia Hall, 5th floor");
+            location.setText("Auditorium 2");
         }
 
         if (s.getIsBreak()) {
