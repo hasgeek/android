@@ -58,13 +58,16 @@ public class UpnextRecyclerViewAdapter extends RecyclerView.Adapter<UpnextRecycl
 
         if(s.getRoom()==null) {
             holder.tv_location.setText("");
-        } else if(s.getRoom().contains("navalmal")) {
-            holder.tv_location.setText("Navalmal Firodia Hall, 5th floor");
-        } else if(s.getRoom().contains("sumant")) {
-            holder.tv_location.setText("Sumant Moolgaokar Auditorium, Ground Floor");
-        }
-        else {
-            holder.tv_location.setText("Sumant Moolgaokar Auditorium, Ground Floor");
+        } else if(s.getRoom().contains("auditorium-2")) {
+            holder.tv_location.setText("Auditorium 2");
+        } else if(s.getRoom().contains("auditorium-3")) {
+            holder.tv_location.setText("Auditorium 2");
+        } else if(s.getRoom().contains("room-1")) {
+            holder.tv_location.setText("Room 1");
+        } else if(s.getRoom().contains("room-2")) {
+            holder.tv_location.setText("Room 2");
+        } else {
+            holder.tv_location.setText("Auditorium 2");
         }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

@@ -146,7 +146,7 @@ public class SpacesActivity extends BaseActivity {
 
     void goToDefaultSpace() {
 
-        Space defaultSpace = SpaceController.getSpaceById_Hot(getRealm(), "148");
+        Space defaultSpace = SpaceController.getSpaceById_Hot(getRealm(), "138");
         if (defaultSpace != null) {
             skip = true;
             goToSpace(defaultSpace);
