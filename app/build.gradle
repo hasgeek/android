@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.25.3'
     }
 }
 apply plugin: 'com.android.application'
@@ -40,12 +40,12 @@ android {
         release {
         }
     }
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "com.hasgeek"
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode advancedVersioning.versionCode
         versionName advancedVersioning.versionName
     }
@@ -56,48 +56,49 @@ android {
     }
 }
 
+ext.supportLibraryVersion = '27.0.2'
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
     // Support libraries
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:customtabs:25.3.1'
+    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
+    implementation "com.android.support:design:$supportLibraryVersion"
+    implementation "com.android.support:cardview-v7:$supportLibraryVersion"
+    implementation "com.android.support:support-v4:$supportLibraryVersion"
+    implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
+    implementation "com.android.support:support-v4:$supportLibraryVersion"
+    implementation "com.android.support:customtabs:$supportLibraryVersion"
     // Squarify
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
-    compile 'com.squareup.retrofit2:converter-gson:2.0.0'
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
+    implementation 'com.squareup.retrofit2:converter-gson:2.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
     // Reactive Extensions for Android
-    compile 'io.reactivex:rxandroid:1.2.1'
+    implementation 'io.reactivex:rxandroid:1.2.1'
     // RxJava
-    compile 'io.reactivex:rxjava:1.1.7'
+    implementation 'io.reactivex:rxjava:1.1.7'
     // Realm helpers
-    compile 'io.realm:android-adapters:1.3.0'
+    implementation 'io.realm:android-adapters:1.3.0'
     // Logger
-    compile 'com.jakewharton.timber:timber:4.1.2'
+    implementation 'com.jakewharton.timber:timber:4.6.0'
     // Gson
-    compile 'com.google.code.gson:gson:2.4'
+    implementation 'com.google.code.gson:gson:2.4'
     // QR Code library
-    compile 'me.dm7.barcodescanner:zbar:1.9'
+    implementation 'me.dm7.barcodescanner:zbar:1.9'
     // Dexter
-    compile 'com.karumi:dexter:2.3.1'
+    implementation 'com.karumi:dexter:2.3.1'
     // Permissions
-    compile 'com.karumi:dexter:2.3.1'
+    implementation 'com.karumi:dexter:2.3.1'
     // Bottom Tab Bar
-    compile 'com.aurelhubert:ahbottomnavigation:1.5.1'
+    implementation 'com.aurelhubert:ahbottomnavigation:1.5.1'
     // Sectioned RecyclerView
-    compile 'com.truizlop.sectionedrecyclerview:library:1.2.0'
+    implementation 'com.truizlop.sectionedrecyclerview:library:1.2.0'
 
-    compile('com.crashlytics.sdk.android:answers:1.3.10@aar') {
+    implementation('com.crashlytics.sdk.android:answers:1.3.10@aar') {
         transitive = true;
     }
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
 }
