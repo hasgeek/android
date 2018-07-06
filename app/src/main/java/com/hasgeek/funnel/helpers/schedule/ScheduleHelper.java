@@ -59,7 +59,7 @@ public class ScheduleHelper {
 
         HashMap<String, Integer> masterTimeMap = new HashMap<>();
 
-        String startTime = "8:00 AM";
+        String startTime = "7:30 AM";
         String endTime = "11:30 PM";
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
@@ -67,7 +67,7 @@ public class ScheduleHelper {
         Calendar c = Calendar.getInstance();
         c.setTime(simpleDateFormat.parse(startTime));
 
-        for (int i = 0; i < 186; i++) {
+        for (int i = 0; i < 192; i++) {
             masterTimeMap.put(TimeUtils.getSimpleTimeForCalendar(c), SEGMENT_HEIGHT * i);
             if (maxHeight< SEGMENT_HEIGHT * i)
                 maxHeight = SEGMENT_HEIGHT * i;
