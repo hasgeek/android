@@ -1,6 +1,7 @@
 package com.hasgeek.funnel.data;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;

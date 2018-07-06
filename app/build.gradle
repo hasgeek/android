@@ -26,7 +26,7 @@ advancedVersioning {
     }
 
     codeOptions {
-        versionCodeType org.moallemi.gradle.internal.VersionCodeType.AUTO_INCREMENT_ONE_STEP
+        versionCodeType org.moallemi.gradle.internal.VersionCodeType.AUTO_INCREMENT_DATE
         dependsOnTasks 'release' // defaultValue
     }
     outputOptions {
@@ -56,7 +56,7 @@ android {
     }
 }
 
-ext.supportLibraryVersion = '27.0.2'
+ext.supportLibraryVersion = '27.1.1'
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
@@ -69,10 +69,10 @@ dependencies {
     implementation "com.android.support:support-v4:$supportLibraryVersion"
     implementation "com.android.support:customtabs:$supportLibraryVersion"
     // Squarify
-    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
-    implementation 'com.squareup.retrofit2:converter-gson:2.0.0'
-    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     // Reactive Extensions for Android
     implementation 'io.reactivex:rxandroid:1.2.1'
     // RxJava
@@ -82,7 +82,7 @@ dependencies {
     // Logger
     implementation 'com.jakewharton.timber:timber:4.6.0'
     // Gson
-    implementation 'com.google.code.gson:gson:2.4'
+    implementation 'com.google.code.gson:gson:2.8.2'
     // QR Code library
     implementation 'me.dm7.barcodescanner:zbar:1.9'
     // Dexter
@@ -105,7 +105,7 @@ dependencies {
 
 play {
     jsonFile = file('../keys/deploycreds.json')
-    track = 'alpha'
+    track = 'production'
 }
 
 
