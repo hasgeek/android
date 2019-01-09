@@ -17,6 +17,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         DatabaseController.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
+        realm.deleteAll();
     }
 
     public Realm getRealm() {

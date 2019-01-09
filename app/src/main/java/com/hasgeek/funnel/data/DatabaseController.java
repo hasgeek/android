@@ -27,6 +27,7 @@ public class DatabaseController {
     public static void init(Context context) {
         Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
+                .schemaVersion(22)
                 .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(config);
