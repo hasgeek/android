@@ -18,7 +18,8 @@ import io.realm.RealmResults;
 public class SpaceController {
 
     public static RealmResults<Space> getSpaces(Realm realm) {
-        return realm.where(Space.class).equalTo("id","126").or().equalTo("id","125").or().equalTo("id","106").findAll();
+//        return realm.where(Space.class).equalTo("id","126").or().equalTo("id","125").or().equalTo("id","106").findAll();
+        return realm.where(Space.class).findAll();
     }
 
     public static Space getSpaceById_Hot(Realm realm, String id) {

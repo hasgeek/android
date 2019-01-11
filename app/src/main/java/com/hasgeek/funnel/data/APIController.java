@@ -1,6 +1,7 @@
 package com.hasgeek.funnel.data;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -199,10 +200,21 @@ public class APIController {
                     }).create();
 
                     OkHttpClient client = new OkHttpClient();
-                    Request request = new Request.Builder()
-                            .url(space.getUrl() + "participants/json")
-                            .addHeader("Authorization", AuthUtils.getAuthHeaderFromToken(AuthController.getAuthToken()))
-                            .build();
+                    Request request;
+                    if (space.getUrl().contains(".talkfunnel.com")) {
+                        String oldFunnelUrl = space.getUrl().substring(8); // strip "https://"
+                        String[] urlParts = oldFunnelUrl.split(".talkfunnel.com");
+                        String newHgUrl = "https://hasgeek.com/" + urlParts[0] + urlParts[1];
+                        request = new Request.Builder()
+                                .url(newHgUrl + "participants/json")
+                                .addHeader("Authorization", AuthUtils.getAuthHeaderFromToken(AuthController.getAuthToken()))
+                                .build();
+                    } else {
+                        request = new Request.Builder()
+                                .url(space.getUrl() + "participants/json")
+                                .addHeader("Authorization", AuthUtils.getAuthHeaderFromToken(AuthController.getAuthToken()))
+                                .build();
+                    }
 
                     Response response = client.newCall(request).execute();
 

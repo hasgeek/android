@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Author: @karthikb351
@@ -58,7 +59,7 @@ public class ScheduleHelper {
 
         HashMap<String, Integer> masterTimeMap = new HashMap<>();
 
-        String startTime = "8:00 AM";
+        String startTime = "7:30 AM";
         String endTime = "11:30 PM";
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");
@@ -66,7 +67,7 @@ public class ScheduleHelper {
         Calendar c = Calendar.getInstance();
         c.setTime(simpleDateFormat.parse(startTime));
 
-        for (int i = 0; i < 186; i++) {
+        for (int i = 0; i < 192; i++) {
             masterTimeMap.put(TimeUtils.getSimpleTimeForCalendar(c), SEGMENT_HEIGHT * i);
             if (maxHeight< SEGMENT_HEIGHT * i)
                 maxHeight = SEGMENT_HEIGHT * i;
@@ -78,14 +79,19 @@ public class ScheduleHelper {
             int timeDiffInMinutes = TimeUtils.getTimeDifferenceInMinutes(TimeUtils.getCalendarFromISODateString(s.getStart()), TimeUtils.getCalendarFromISODateString(s.getEnd()));
             if (timeDiffInMinutes / 5 * SEGMENT_HEIGHT < MIN_SESSION_HEIGHT) {
                 Calendar x = Calendar.getInstance();
+                String start = s.getStart();
                 x.setTime(simpleDateFormat.parse(TimeUtils.getSimpleTimeForString(s.getStart())));
+                x.setTimeZone(TimeZone.getTimeZone("GMT+05:30"));
                 int offset = MIN_SESSION_HEIGHT / (timeDiffInMinutes / 5);
                 for (int y = 0; y < timeDiffInMinutes / 5; y++) {
-                    int h = masterTimeMap.get(TimeUtils.getSimpleTimeForCalendar(x));
-                    masterTimeMap.put(TimeUtils.getSimpleTimeForCalendar(x), h + offset * y);
-                    if (maxHeight < h + offset * y)
-                        maxHeight = h + offset * y;
-                    x.add(Calendar.MINUTE, 5);
+                    Integer h = masterTimeMap.get(TimeUtils.getSimpleTimeForCalendar(x));
+                    if (h != null) {
+                        masterTimeMap.put(TimeUtils.getSimpleTimeForCalendar(x), h + offset * y);
+                        if (maxHeight < h + offset * y)
+                            maxHeight = h + offset * y;
+                        x.add(Calendar.MINUTE, 5);
+                    }
+
                 }
                 do {
                     Calendar z = Calendar.getInstance();

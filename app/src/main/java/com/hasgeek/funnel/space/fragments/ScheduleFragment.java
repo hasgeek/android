@@ -75,7 +75,7 @@ public class ScheduleFragment extends BaseFragment {
         }
         l("We have: "+sessions.size()+" sessions");
 
-        int trackWidth = (int) (DeviceController.getDeviceWidth() * 0.80);
+        int trackWidth = (int) (DeviceController.getDeviceWidth() * 0.60);
 
         int width = 0;
         int height = 0;
@@ -85,15 +85,28 @@ public class ScheduleFragment extends BaseFragment {
             int mul;
             if (s.getRoom() == null) {
                 mul = 0;
-            } else if (s.getRoom().contains("audi")) {
-                mul = 0;
-            } else if (s.getRoom().contains("banq")) {
-                mul = 1;
-            } else if (s.getRoom().contains("room")) {
-                mul = 2;
             } else {
-                mul = 2;
+                String[] roomParts = s.getRoom().split("/");
+                switch (roomParts[roomParts.length - 1]) {
+                    case "room-1":
+                        mul = 1; break;
+                    case "room-2":
+                        mul = 2; break;
+                    case "auditorium-2":
+                        mul = 1; break;
+                    case "auditorium-3":
+                        mul = 2; break;
+                    case "banq":
+                        mul = 2; break;
+                    case "room":
+                        mul = 2; break;
+                    default:
+                        mul = 0;
+
+                }
             }
+
+
 
             int sessionWidth = trackWidth;
             int marginLeft = sessionWidth * mul;
@@ -163,6 +176,12 @@ public class ScheduleFragment extends BaseFragment {
         } else if(s.getRoom().contains("room")) {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
             location.setText("Meeting Room 1");
+        } else if(s.getRoom().contains("auditorium-1")) {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorPrimary));
+            location.setText("Auditorium 1");
+        } else if(s.getRoom().contains("auditorium-2")) {
+            background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));
+            location.setText("Auditorium 2");
         }
         else {
             background.setBackgroundColor(inflater.getContext().getResources().getColor(R.color.colorAccent));

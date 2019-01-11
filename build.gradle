@@ -3,27 +3,29 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.3.0-rc02'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
 
         // For Realm
-        classpath "io.realm:realm-gradle-plugin:1.1.0"
+        classpath "io.realm:realm-gradle-plugin:4.1.1"
 
         // For Play Publisher plugin
-        classpath 'com.github.triplet.gradle:play-publisher:1.1.5'
+        classpath 'com.github.triplet.gradle:play-publisher:1.2.0'
 
         // For Android versioning
-        classpath 'org.moallemi.gradle.advanced-build-version:gradle-plugin:1.5.3'
+        classpath 'org.moallemi.gradle.advanced-build-version:gradle-plugin:1.6.0'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        google()
     }
 }
 
